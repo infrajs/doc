@@ -7,11 +7,11 @@ use itlife\files\Xlsx;
 
 use itlife\infra\ext\Ans;
 
-$text=Docx::get('*files/tests/resources/test.docx', true);
+$text=Docx::get('*files/tests/resources/test.docx');
 if (!$text||strlen($text)!=1388) {
 	return Ans::err($ans, 'Cant read file .docx');
 }
-$preview=Docx::preview('*files/tests/resources/test.docx', true);
+$preview=Docx::preview('*files/tests/resources/test.docx');
 if (sizeof($preview)!=12) {
 	return Ans::err($ans, 'Cant read preview test.docx '.sizeof($preview));
 }
@@ -26,12 +26,12 @@ if (strlen($preview['preview'])!=199) {
 }
 
 
-$text=Mht::get('*files/tests/resources/test.mht', true);
-if (!$text||strlen($text)!=4327) {
+$text=Mht::get('*files/tests/resources/test.mht');
+if (!$text||strlen($text)!=10276) {
 	return Ans::err($ans, 'Cant read file .mht '.strlen($text));
 }
 
-$preview=Mht::preview('*files/tests/resources/test.mht', true);
+$preview=Mht::preview('*files/tests/resources/test.mht');
 
 if (sizeof($preview)!=12) {
 	return Ans::err($ans, 'Cant read preview test.mht '.sizeof($preview));
@@ -42,7 +42,7 @@ if (sizeof($preview['links'])!=1) {
 if (sizeof($preview['images'])!=1) {
 	return Ans::err($ans, 'Cant read images test.mht '.sizeof($preview['images']));
 }
-if (strlen($preview['preview'])!=466) {
+if (strlen($preview['preview'])!=468) {
 	return Ans::err($ans, 'Cant read test.mht preview '.strlen($preview['preview']));
 }
 
@@ -64,12 +64,12 @@ if (strlen($preview['preview'])!=885) {
 
 $name='test.tpl';
 $text=Mht::get('*files/tests/resources/'.$name);
-if (strlen($text)!=3073) {
+if (strlen($text)!=3026) {
 	return Ans::err($ans, 'Cant read '.$name.' '.strlen($text));
 }
 $name='test.html';
 $text=Mht::get('*files/tests/resources/'.$name);
-if (strlen($text)!=1093) {
+if (strlen($text)!=1073) {
 	return Ans::err($ans, 'Cant read '.$name.' '.strlen($text));
 }
 

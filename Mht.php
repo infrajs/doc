@@ -4,6 +4,7 @@
  */
 namespace itlife\files;
 
+
 class Mht
 {
 	public static function get($src)
@@ -297,28 +298,7 @@ class Mht
 					}
 				} while (sizeof($match) > 1);
 
-				do {
-					preg_match('/###(.*)###/U', $html, $match);
-					if (sizeof($match) > 1) {
-						$param = $match[1];
-						$param = strip_tags($param);
-						$param = html_entity_decode($param, ENT_QUOTES, 'utf-8');
-						$param = preg_split('/#/', $param);
-						for ($i = 0, $l = sizeof($param); $i < $l; ++$i) {
-							$param[$i] = trim($param[$i]);
-						}
-						$name = $param[0];
-						$qp = http_build_query($param, 'p', '&');
-						$inset = infra_loatTEXT('*pages/insets/'.$name.'.php?type=html&'.$qp);
-						if ($inset) {
-							$html = preg_replace('/###(.*)###/U', $inset, $html, 1);
-						} else {
-							$html = preg_replace('/###(.*)###/U', '', $html, 1);
-						}
-					} else {
-						break;
-					}
-				} while (sizeof($match) > 1);
+				
 				$ans['images']=array();
 				foreach ($images as $img) {
 					$ans['images'][]=array('src'=>$folder.$img);
