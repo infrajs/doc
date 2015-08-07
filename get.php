@@ -13,7 +13,6 @@ History
 Добавлена поддерж php файлов и возможность передачи get параметров запрашиваемому файлу
 */
 
-
 //..'xls'=>'?*pages/xls/xls.php?src='
 
 use itlife\infra\ext\Ans;
@@ -23,72 +22,75 @@ $isrc = infra_toutf(urldecode($_SERVER['QUERY_STRING']));
 
 infra_admin_modified();
 
-$fdata=infra_srcinfo($isrc);
+$fdata = infra_srcinfo($isrc);
 
-
-$src=infra_admin_cache('files_get_php', function ($isrc) {
+$src = infra_admin_cache('files_get_php', function ($isrc) {
 	$src = infra_theme($src);
 	if ($src) {
 		return $src;
 	}
-	$fdata=infra_srcinfo($isrc);
+	$fdata = infra_srcinfo($isrc);
 	$folder = infra_theme($fdata['folder']);
 	if (!infra_theme($folder)) {
 		return false;
 	}
 	array_map(function ($file) use (&$result, $fdata) {
-		
-		if ($file{0}=='.') {
+
+if ($file{0} == '.') {
+	return;
+}
+		$fd = infra_nameinfo($file);
+		if ($fdata['id'] && $fdata['id'] != $fd['id']) {
 			return;
 		}
-		$fd=infra_nameinfo($file);
-		if ($fdata['id']&&$fdata['id']!=$fd['id']) {
+		if ($fdata['name'] && $fdata['name'] != $fd['name']) {
 			return;
 		}
-		if ($fdata['name']&&$fdata['name']!=$fd['name']) {
+		if ($fdata['ext'] && $fdata['ext'] != $fd['ext']) {
 			return;
-		}
-		if ($fdata['ext']&&$fdata['ext']!=$fd['ext']) {
-			return;
-		} else if ($result) {//Расширение не указано и уже есть результат
+		} elseif ($result) {
+			//Расширение не указано и уже есть результат
 			//Исключение.. расширение tpl самое авторитетное
-			if ($fd['ext']!='tpl') {
+			if ($fd['ext'] != 'tpl') {
 				return;
 			}
 		}
-		$result=$file;
+		$result = $file;
 	}, scandir(infra_theme($folder)));
 
 	if (!$result) {
 		return false;
 	}
+
 	return infra_theme($folder.$result);
 }, array($fdata['path']), isset($_GET['re']));
 
-$ans=array('src'=>$isrc);
+$ans = array('src' => $isrc);
 if (!$src) {
-	header("HTTP/1.0 404 Not Found");
+	header('HTTP/1.0 404 Not Found');
 }
 
-$fdata=infra_srcinfo($src);
-
+$fdata = infra_srcinfo($src);
 
 if (in_array($fdata['ext'], array('docx'))) {
-	$txt=files\Docx::get($src);
+	$txt = files\Docx::get($src);
+
 	return Ans::txt($txt);
 }
 if (in_array($fdata['ext'], array('mht'))) {
-	$txt=files\Mht::get($src);
+	$txt = files\Mht::get($src);
+
 	return Ans::txt($txt);
 }
-if (in_array($fdata['ext'], array('xls','xlsx'))) {
-	$ans=files\Xlsx::get($src);
+if (in_array($fdata['ext'], array('xls', 'xlsx'))) {
+	$ans = files\Xlsx::get($src);
+
 	return Ans::ans($ans);
 }
-if (in_array($fdata['ext'], array('tpl','html','htm'))) {
-	$txt=file_get_contents($src);
+if (in_array($fdata['ext'], array('tpl', 'html', 'htm'))) {
+	$txt = file_get_contents($src);
+
 	return Ans::txt($txt);
 }
 
-
-header("HTTP/1.0 400 Bad Request");
+header('HTTP/1.0 400 Bad Request');

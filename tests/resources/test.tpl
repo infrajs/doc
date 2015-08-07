@@ -18,31 +18,31 @@
 	<h2>Ознакомьтесь с ассортиментом моек самообслуживания!</h2>
 
 	<table class="table table-striped">
-	    <tr>
-	        <td>
+		<tr>
+			<td>
 				<h3><a href="http://yandex.ru">2 поста</a></h3>
-	        </td>
-	        <td>	
-	            <h3>3 поста</h3>
-	        </td>
-	        <td>
-	        	<h3>4 поста</h3>
-	        </td>
-	        <td>
-	        	<h3>5 постов</h3>
-	        </td>
-	        <td>
-	        	<h3>6 постов</h3>
-	        </td>
-	    </tr>
-	    <tr>
-	        <td>
-	          <a href="?Каталог/Techno Ekol/Автомойка на 2 поста"><img src="?*files/tests/resources/200439.jpeg?w=150" /></a>
-	        </td>
-	         <td>
-	          <a href="?Каталог/Techno Ekol/Автомойка на 2 поста"><img src="?*files/tests/resources/200439.jpeg" /></a>
-	        </td>
-	    </tr>
+			</td>
+			<td>	
+				<h3>3 поста</h3>
+			</td>
+			<td>
+				<h3>4 поста</h3>
+			</td>
+			<td>
+				<h3>5 постов</h3>
+			</td>
+			<td>
+				<h3>6 постов</h3>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			  <a href="?Каталог/Techno Ekol/Автомойка на 2 поста"><img src="?*files/tests/resources/200439.jpeg?w=150" /></a>
+			</td>
+			 <td>
+			  <a href="?Каталог/Techno Ekol/Автомойка на 2 поста"><img src="?*files/tests/resources/200439.jpeg" /></a>
+			</td>
+		</tr>
 	</table>
 	<p>Заполните <span class="a showContacts">форму контактов</span>, чтобы узнать о ценах и наших предложениях на автомойки самообслуживания!</p>
 </div>

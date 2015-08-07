@@ -24,7 +24,7 @@ function docx_full_del_dir($directory)
 function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $debug)
 {
 	// Создаёт "реинкарнацию" zip-архива...
-	
+
 	$zip = new \ZipArchive();
 
 	// И пытаемся открыть переданный zip-файл
@@ -352,7 +352,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 				if (sizeof($t) == 2) {
 					$name = $t[0];
 					$val = $t[1];
-					
+
 					if ($name == 'div') { //envdiv {div:tadam}
 						//чтобы обработать env нужно уже загрузить этот слой к этому времени env обработаны
 						//$hr='<script>if(window.infra)infra.when(infrajs,"onshow",function(){ infrajs.envSet("'.$t[1].'",true)});</script>';
@@ -405,11 +405,10 @@ class Docx
 {
 	public static function preview($src)
 	{
-		$param=self::parse($src);
-		
+		$param = self::parse($src);
+
 		$data = infra_srcinfo($src);
 		$data = infra_nameinfo($data['file']);
-		
 
 		$patern = '/###cut###/U';
 		$d = preg_split($patern, $param['html']);
@@ -455,12 +454,10 @@ class Docx
 		if (!empty($param['images'])) {
 			$data['images'] = $param['images'];
 		}
-		
+
 		$data['preview'] = $preview;
-		
 
 		return $data;
-			
 	}
 	public static function get($src)
 	{
@@ -469,37 +466,35 @@ class Docx
 			Содержмое txt не может повлиять на работу infrajs
 			Если мы хотим иметь такую новость, которая будет менять сайт, нужно заложить эту логику в layers.json в данные
 		*/
-		$param=self::parse($src);
+		$param = self::parse($src);
 
 		return $param['html'];
-
 	}
 	/**
-	 * Кэширумеая функция, основной разбор
+	 * Кэширумеая функция, основной разбор.
 	 */
 	public static function parse($src)
 	{
-		
 		$args = array($src,$imgmaxwidth,$previewlen);
 
 		$param = infra_cache(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
-			
-			$conf = infra_config();
+
+$conf = infra_config();
 			$imgmaxwidth = $conf['files']['imgmaxwidth'];
 			$previewlen = $conf['files']['previewlen'];
 
 			$cachename = md5($src);
 			$dirs = infra_dirs();
 			$cachefolder = $dirs['cache'].'docx/'.$cachename.'/';
-			
-			//В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
+
+//В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
 			//Обновление страницы проходит уже нормально
 			//Полагаю в линукс такой ошибки не будет хз почему возникает
 			@docx_full_del_dir($cachefolder);
 
 			$xmls = docx_getTextFromZippedXML(infra_theme($src), 'word/document.xml', $cachefolder, $re);
-			
-			$rIds = array();
+
+$rIds = array();
 			$param = array('folder' => $cachefolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'type' => $type, 'rIds' => $rIds);
 			if ($xmls[0]) {
 				$xmlar = docx_dom_to_array($xmls[0]);
@@ -515,8 +510,9 @@ class Docx
 				$param['rIds'] = array();
 				$html = '';
 			}
-			
-			$param['html']=$html;
+
+$param['html'] = $html;
+
 			return $param;
 		}, $args);
 		unset($param['rIds']);
@@ -527,7 +523,7 @@ class Docx
 		unset($param['isul']);
 		unset($param['imgnum']);
 		unset($param['folder']);
-		
+
 		return $param;
 	}
 }
