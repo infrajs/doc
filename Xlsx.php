@@ -1040,18 +1040,17 @@ function &xls_init($path, $config = array())
 			$ar[] = $path;
 		} elseif ($p) {
 			$isonefile = false;
-			array_map(function ($file) use (&$list, $p) {
+			array_map(function ($file) use (&$ar, $p, $path) {
 				if ($file{0}=='.') {
 					return;
 				}
 				$fd=infra_nameinfo($file);
 				if (in_array($fd['ext'], array('xls', 'xlsx'))) {
-					$list[]=$path.$file;
+					$ar[]=$path.infra_toutf($file);
 				}
 			}, scandir($p));
 		}
 	});
-	
 	if (!@$config['root']) {
 		if ($isonefile) {
 			$d = infra_srcinfo($isonefile);
@@ -1066,7 +1065,6 @@ function &xls_init($path, $config = array())
 
 	infra_forr($ar, function &($path) use (&$data) {
 		$d = &xls_make($path);
-
 		if (!$d) {
 			return;
 		}
@@ -1293,5 +1291,104 @@ class Xlsx
 	public static function parseAll($src)
 	{
 		return xls_parseAll($src);
+	}
+	public static function addFiles(&$pos)
+	{
+		$conf=infra_config();
+		$props=array('producer','article');
+		$pth=$conf['catalog']['dir'];
+
+		if (!isset($pos['images'])) {
+			$pos['images'] = array();
+		}
+		if (!isset($pos['texts'])) {
+			$pos['texts'] = array();
+		}
+		if (!isset($pos['files'])) {
+			$pos['files'] = array();
+		}
+		$dir = array();
+		if (infra_forr($props, function &($name) use (&$dir, &$pos) {
+			$rname = infra_seq_right($name);
+			$val = infra_seq_get($pos, $rname);
+			if (!$val) {
+				return true;
+			}
+			$dir[] = $val;
+			$r = null;
+			return $r;
+		})) {
+			return;
+		}
+
+		if ($dir) {
+			$dir = implode('/', $dir).'/';
+			$dir = $pth.$dir;
+		} else {
+			$dir = $pth;
+		}
+
+		$dir = infra_theme($dir);
+		if (!$dir) {
+			return false;
+		}
+
+		if (is_dir($dir)) {
+			$paths = glob($dir.'*');
+		} elseif (is_file($dir)) {
+			$paths = array($dir);
+			$p = infra_srcinfo($dir);
+			$dir = $p['folder'];
+		}
+
+		infra_forr($paths, function &($p) use (&$pos, $dir) {
+
+			$d = explode('/', $p);
+			$name = array_pop($d);
+			$n = infra_strtolower($name);
+			$fd = infra_nameinfo($n);
+			$ext = $fd['ext'];
+
+			//if(!$ext)return;
+			if (!is_file($dir.$name)) {
+				return;
+			}
+			//$name=preg_replace('/\.\w{0,4}$/','',$name);
+
+			/*$p=pathinfo($p);
+			$name=$p['basename'];
+			$ext=strtolower($p['extension']);*/
+			$dirs = infra_dirs();
+			$dir = preg_replace('/^'.str_replace('/', '\/', $dirs['data']).'/', '*', $dir);
+			$name = infra_toutf($dir.$name);
+			if ($name{0} == '.') {
+				return;
+			}
+			$im = array('png', 'gif', 'jpg');
+			$te = array('html', 'tpl', 'mht', 'docx');
+			if (infra_forr($im, function ($e) use ($ext) {
+				if ($ext == $e) {
+					return true;
+				}
+			})) {
+				$pos['images'][] = $name;
+			} elseif (infra_forr($te, function ($e) use ($ext) {
+				if ($ext == $e) {
+					return true;
+				}
+			})) {
+				$pos['texts'][] = $name;
+			} else {
+				if ($ext != 'db') {
+					$pos['files'][] = $name;
+				}
+			}
+			$r = null;
+
+			return $r;
+		});
+		$pos['images'] = array_unique($pos['images']);
+		$pos['texts'] = array_unique($pos['texts']);
+		$pos['files'] = array_unique($pos['files']);
 	}
 }
