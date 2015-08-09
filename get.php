@@ -25,7 +25,7 @@ infra_admin_modified();
 $fdata = infra_srcinfo($isrc);
 
 $src = infra_admin_cache('files_get_php', function ($isrc) {
-	$src = infra_theme($src);
+	$src = infra_theme($isrc);
 	if ($src) {
 		return $src;
 	}
@@ -36,9 +36,9 @@ $src = infra_admin_cache('files_get_php', function ($isrc) {
 	}
 	array_map(function ($file) use (&$result, $fdata) {
 
-if ($file{0} == '.') {
-	return;
-}
+		if ($file{0} == '.') {
+			return;
+		}
 		$fd = infra_nameinfo($file);
 		if ($fdata['id'] && $fdata['id'] != $fd['id']) {
 			return;
@@ -68,6 +68,7 @@ if ($file{0} == '.') {
 $ans = array('src' => $isrc);
 if (!$src) {
 	header('HTTP/1.0 404 Not Found');
+	return;
 }
 
 $fdata = infra_srcinfo($src);

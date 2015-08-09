@@ -1292,11 +1292,11 @@ class Xlsx
 	{
 		return xls_parseAll($src);
 	}
-	public static function addFiles(&$pos)
+	public static function addFiles(&$pos, $dir = false)
 	{
 		$conf=infra_config();
 		$props=array('producer','article');
-		$pth=$conf['catalog']['dir'];
+		
 
 		if (!isset($pos['images'])) {
 			$pos['images'] = array();
@@ -1307,27 +1307,29 @@ class Xlsx
 		if (!isset($pos['files'])) {
 			$pos['files'] = array();
 		}
-		$dir = array();
-		if (infra_forr($props, function &($name) use (&$dir, &$pos) {
-			$rname = infra_seq_right($name);
-			$val = infra_seq_get($pos, $rname);
-			if (!$val) {
-				return true;
+		if (!$dir) {
+			$dir = array();
+			$pth=$conf['catalog']['dir'];
+			if (infra_forr($props, function &($name) use (&$dir, &$pos) {
+				$rname = infra_seq_right($name);
+				$val = infra_seq_get($pos, $rname);
+				if (!$val) {
+					return true;
+				}
+				$dir[] = $val;
+				$r = null;
+				return $r;
+			})) {
+				return;
 			}
-			$dir[] = $val;
-			$r = null;
-			return $r;
-		})) {
-			return;
-		}
 
-		if ($dir) {
-			$dir = implode('/', $dir).'/';
-			$dir = $pth.$dir;
-		} else {
-			$dir = $pth;
+			if ($dir) {
+				$dir = implode('/', $dir).'/';
+				$dir = $pth.$dir;
+			} else {
+				$dir = $pth;
+			}
 		}
-
 		$dir = infra_theme($dir);
 		if (!$dir) {
 			return false;
