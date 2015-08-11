@@ -67,7 +67,9 @@ $src = infra_admin_cache('files_get_php', function ($isrc) {
 
 $ans = array('src' => $isrc);
 if (!$src) {
-	header('HTTP/1.0 404 Not Found');
+	if(!infra_isphp()){
+		header('HTTP/1.0 404 Not Found');
+	}
 	return;
 }
 
@@ -93,5 +95,6 @@ if (in_array($fdata['ext'], array('tpl', 'html', 'htm'))) {
 
 	return Ans::txt($txt);
 }
-
-header('HTTP/1.0 400 Bad Request');
+if (!infra_isphp()) {
+	header('HTTP/1.0 400 Bad Request');
+}
