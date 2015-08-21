@@ -31,6 +31,7 @@ $src = infra_admin_cache('files_get_php', function ($isrc) {
 	}
 	$fdata = infra_srcinfo($isrc);
 	$folder = infra_theme($fdata['folder']);
+
 	if (!infra_theme($folder)) {
 		return false;
 	}
@@ -39,13 +40,16 @@ $src = infra_admin_cache('files_get_php', function ($isrc) {
 		if ($file{0} == '.') {
 			return;
 		}
+		$file=infra_toutf($file);
 		$fd = infra_nameinfo($file);
+		
 		if ($fdata['id'] && $fdata['id'] != $fd['id']) {
 			return;
 		}
 		if ($fdata['name'] && $fdata['name'] != $fd['name']) {
 			return;
 		}
+		
 		if ($fdata['ext'] && $fdata['ext'] != $fd['ext']) {
 			return;
 		} elseif ($result) {
