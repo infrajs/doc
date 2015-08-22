@@ -56,7 +56,7 @@ if (sizeof($preview['links']) != 1) {
 if (sizeof($preview['images']) != 2) {
 	return Ans::err($ans, 'Cant read images '.$name.' '.sizeof($preview['images']));
 }
-if (strlen($preview['preview']) != 885) {
+if (strlen($preview['preview']) != 899) {
 	return Ans::err($ans, 'Cant read '.$name.' preview '.strlen($preview['preview']));
 }
 
