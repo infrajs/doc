@@ -25,26 +25,6 @@ if (strlen($preview['preview']) != 199) {
 	return Ans::err($ans, 'Cant read test.docx preview');
 }
 
-$text = Mht::get('*files/tests/resources/test.mht');
-if (!$text || strlen($text) != 10276) {
-	return Ans::err($ans, 'Cant read file .mht '.strlen($text));
-}
-
-$preview = Mht::preview('*files/tests/resources/test.mht');
-
-if (sizeof($preview) != 12) {
-	return Ans::err($ans, 'Cant read preview test.mht '.sizeof($preview));
-}
-if (sizeof($preview['links']) != 1) {
-	return Ans::err($ans, 'Cant read links test.mht '.sizeof($preview['links']));
-}
-if (sizeof($preview['images']) != 1) {
-	return Ans::err($ans, 'Cant read images test.mht '.sizeof($preview['images']));
-}
-if (strlen($preview['preview']) != 468) {
-	return Ans::err($ans, 'Cant read test.mht preview '.strlen($preview['preview']));
-}
-
 $name = 'test.tpl';
 $preview = Mht::preview('*files/tests/resources/'.$name);
 if (sizeof($preview) != 12) {
