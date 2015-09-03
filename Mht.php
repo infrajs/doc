@@ -14,7 +14,7 @@ class Mht
 	public static function preview($src)
 	{
 		$param=self::parse($src);
-
+		
 		$data = infra_srcinfo($src);
 		$data = infra_nameinfo($data['file']);
 
@@ -68,8 +68,6 @@ class Mht
 			return;
 		}
 		
-
-		
 		$args = array($src);
 		return infra_cache(array($src), 'mhtparse', function ($src) {
 			$conf = infra_config();
@@ -77,8 +75,13 @@ class Mht
 			$previewlen = $conf['files']['previewlen'];
 
 			$filename=infra_theme($src);
-			$data = file_get_contents($filename);
 			$fdata=infra_srcinfo($src);
+			if ($fdata['ext']=='php') {
+				$data = infra_loadTEXT($filename);
+			} else {
+				$data = file_get_contents($filename);
+			}
+			
 			$ans = array();
 			if ($fdata['ext']=='mht') {
 				$p = explode('/', $filename);
@@ -340,7 +343,6 @@ class Mht
 			$html=preg_replace('/ /U', '', $html);//bugfix списки в mht порождаются адский символ. в eval-е скрипта недопустим.
 			$ans['html'] = $html;
 			return $ans;
-
 		}, $args);
 	}
 }

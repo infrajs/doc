@@ -67,7 +67,7 @@ $src = infra_admin_cache('files_get_php', function ($isrc) {
 
 $ans = array('src' => $isrc);
 if (!$src) {
-	if(!infra_isphp()){
+	if (!infra_isphp()) {
 		header('HTTP/1.0 404 Not Found');
 	}
 	return;
@@ -90,8 +90,8 @@ if (in_array($fdata['ext'], array('xls', 'xlsx'))) {
 
 	return Ans::ans($ans);
 }
-if (in_array($fdata['ext'], array('tpl', 'html', 'htm'))) {
-	$txt = file_get_contents($src);
+if (in_array($fdata['ext'], array('tpl', 'html', 'htm','php'))) {
+	$txt = infra_loadTEXT($src);
 
 	return Ans::txt($txt);
 }
