@@ -18,20 +18,14 @@ class Mht
 		$data = infra_srcinfo($src);
 		$data = infra_nameinfo($data['file']);
 
-		$patern = '/###cut###/U';
-		$d = preg_split($patern, $param['html']);
-		if (sizeof($d) > 1) {
-			$param['html'] = preg_replace($patern, '', $param['html']);
-			$preview = $d[0];
+		
+		$temphtml = strip_tags($param['html'], '<p><b><strong><i>');
+		$temphtml=preg_replace('/\n/', ' ', $temphtml);
+		preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
+		if (sizeof($match) > 1) {
+			$preview = $match[1];
 		} else {
-			$temphtml = strip_tags($param['html'], '<p>');
-			//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
-			preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
-			if (sizeof($match) > 1) {
-				$preview = $match[1];
-			} else {
-				$preview = $param['html'];
-			}
+			$preview = $param['html'];
 		}
 		$preview = preg_replace('/<h1.*<\/h1>/U', '', $preview);
 		$preview = preg_replace('/<img.*>/U', '', $preview);
