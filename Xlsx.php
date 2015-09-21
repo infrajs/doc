@@ -77,6 +77,24 @@ function &xls_parseAll($path)
 
 				return $r;
 			});
+		} elseif ($in['ext'] == 'csv') {
+			$handle = fopen('php://memory', 'w+');
+			fwrite($handle, infra_toutf(file_get_contents($file)));
+			rewind($handle);
+			$data = array(); //Массив будет хранить данные из csv
+			while (($line = fgetcsv($handle, 0, ";")) !== false) { //Проходим весь csv-файл, и читаем построчно. 3-ий параметр разделитель поля
+				$data[] = $line; //Записываем строчки в массив
+			}
+			fclose($handle);
+			foreach($data as $k=>$v){
+				foreach($data[$k] as $kk=>$vv){
+					$vv=trim($vv);
+					if($vv==='')unset($data[$k][$kk]);
+					else $data[$k][$kk]=$vv;
+				}
+				if(!$data[$k])unset($data[$k]);
+			}
+			$data=array('list'=>$data);
 		} elseif ($in['ext'] == 'xlsx') {
 			$dirs = infra_dirs();
 			$cacheFolder = $dirs['cache'].'xlsx/';
@@ -1264,11 +1282,11 @@ class Xlsx
 		});
 		return $data;
 	}
-	public static function runGroups($data, $callback)
+	public static function &runGroups(&$data, $callback)
 	{
 		return xls_runGroups($data, $callback);
 	}
-	public static function runPoss($data, $callback)
+	public static function &runPoss(&$data, $callback)
 	{
 		return xls_runPoss($data, $callback);
 	}
@@ -1276,7 +1294,7 @@ class Xlsx
 	 * Функция считывает листы из Excle книги или папки с Excel книгами.
 	 * Применяется сложная логика объединения групп и формирования новых групп.
 	 */
-	public static function init($src, $config = array())
+	public static function &init($src, $config = array())
 	{
 		return xls_init($src, $config);
 	}

@@ -14,11 +14,11 @@ class Mht
 	public static function preview($src)
 	{
 		$param=self::parse($src);
-		
+
 		$data = infra_srcinfo($src);
 		$data = infra_nameinfo($data['file']);
 
-		
+
 		$temphtml = strip_tags($param['html'], '<p><b><strong><i>');
 		$temphtml=preg_replace('/\n/', ' ', $temphtml);
 		preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
@@ -32,7 +32,7 @@ class Mht
 		$preview = preg_replace('/<p.*>\s*<\/p>/iU', '', $preview);
 		$preview = preg_replace("/\s+/", ' ', $preview);
 		$preview = trim($preview);
-		
+
 		$filetime = filemtime(infra_theme($src));
 		$data['modified'] = $filetime;
 		if (!empty($param['links'])) {
@@ -45,13 +45,13 @@ class Mht
 		if (!empty($data['name'])) {
 			$data['title'] = $data['name'];
 		}
-	
+
 		if (!empty($param['images'])) {
 			$data['images'] = $param['images'];
 		}
-		
+
 		$data['preview'] = $preview;
-		
+
 
 		return $data;
 	}
@@ -61,7 +61,7 @@ class Mht
 		if (!$src) {
 			return;
 		}
-		
+
 		$args = array($src);
 		return infra_cache(array($src), 'mhtparse', function ($src) {
 			$conf = infra_config();
@@ -75,20 +75,20 @@ class Mht
 			} else {
 				$data = file_get_contents($filename);
 			}
-			
+
 			$ans = array();
 			if ($fdata['ext']=='mht') {
 				$p = explode('/', $filename);
 				$fname = array_pop($p);
 				$fnameext = $fname;
 				//$fname=basename($filename);
-				
+
 
 				preg_match("/^(\d*)/", $fname, $match);
 				$date = $match[0];
 				$fname = infra_toutf(preg_replace('/^\d*\s+/', '', $fname));
 				$fname = preg_replace('/\.\w{0,4}$/', '', $fname);
-				
+
 				$ar = preg_split('/------=_NextPart_.*/', $data);
 				if (sizeof($ar) > 1) {
 					//На первом месте идёт информация о ворде...
@@ -134,7 +134,7 @@ class Mht
 						@file_put_contents($folder.$name, base64_decode($content));//Сохраняем картинку или тп...
 					}
 				}
-				
+
 				if (!$html) {
 					$html = '';
 				}
@@ -146,7 +146,7 @@ class Mht
 				$images = array();
 
 				preg_match_all('/src=3D".*\.files\/(image.+)"/U', $html, $match, PREG_PATTERN_ORDER);
-				
+
 				for ($i = 0, $l = sizeof($match[1]); $i < $l; $i = $i + 2) {
 					$min=$match[1][$i + 1];
 					if (!$min) {
@@ -154,8 +154,8 @@ class Mht
 					}
 					$images[$min] = $match[1][$i];//Каждая следующая картинка есть уменьшенная копия предыдущей оригинального размера
 				}
-				
-				
+
+
 				$html = preg_replace("/<\!--.*-->/U", '', $html);
 
 				$html = preg_replace("/<!\[if !vml\]>/", '', $html);
@@ -168,10 +168,10 @@ class Mht
 				$html = preg_replace('/align=right/', 'align="right" class="right"', $html);
 				$html = preg_replace('/align=left/', 'align="left" class="left"', $html);
 
-		
-				
+
+
 				$html = infra_toutf($html);//Виндовые файлы хранятся в cp1251
-				
+
 				$folder = infra_toutf($folder);
 				$html = preg_replace('/ src=".*\/(.*)"/U', ' src="'.$folder.'${1}"', $html);
 
@@ -208,12 +208,12 @@ class Mht
 					}
 				} while (sizeof($match) == $count);
 
-				
-				
+
+
 
 				$title = $fname;
 
-				
+
 				$patern = '/<img(.*)>/U';
 				$count = 2;
 				do {
@@ -264,7 +264,7 @@ class Mht
 						break;
 					}
 				} while (sizeof($match) == $count);
-				
+
 				$patern = "/###\{(.*)\}###/U";//js код
 				do {
 					preg_match($patern, $html, $match);
@@ -288,13 +288,13 @@ class Mht
 						$param = $match[1];
 						$param = preg_replace('/style=".*"/U', '', $param);
 						$param = preg_replace("/style='.*'/U", '', $param);
-						$html = preg_replace($patern, '<table cellspacing="0" cellpadding="0" class="common">'.$param.'</table>', $html, 1);
+						$html = preg_replace($patern, '<table class="table table-striped">'.$param.'</table>', $html, 1);
 					} else {
 						break;
 					}
 				} while (sizeof($match) > 1);
 
-				
+
 				$ans['images']=array();
 				foreach ($images as $img) {
 					$ans['images'][]=array('src'=>$folder.$img);
@@ -315,7 +315,7 @@ class Mht
 				$heading = false;
 			}
 			$ans['heading']=$heading;
-			
+
 			preg_match_all('/<a.*href="(.*)".*>(.*)<\/a>/U', $html, $match);
 			$links = array();
 			foreach ($match[1] as $k => $v) {
@@ -326,13 +326,13 @@ class Mht
 				$links[] = array('title' => $title, 'href' => $match[1][$k]);
 			}
 
-			
+
 			$ans['links']=$links;
-			
-	
+
+
 			$html = trim($html);
 
-			
+
 			$html=html_entity_decode($html, ENT_COMPAT, 'UTF-8');
 			$html=preg_replace('/ /U', '', $html);//bugfix списки в mht порождаются адский символ. в eval-е скрипта недопустим.
 			$ans['html'] = $html;
