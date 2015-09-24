@@ -60,9 +60,12 @@ class oleread
 		}
 		//echo IDENTIFIER_OLE;
 		//echo 'start';
-		if (substr($this->data, 0, 8) != IDENTIFIER_OLE) {
+		$ind=substr($this->data, 0, 8);
+		if ( $ind!= IDENTIFIER_OLE) {
+			var_dump(IDENTIFIER_OLE);
+			var_dump($ind);
+			exit;
 			$this->error = 1;
-
 			return false;
 		}
 		$this->numBigBlockDepotBlocks = GetInt4d($this->data, NUM_BIG_BLOCK_DEPOT_BLOCKS_POS);

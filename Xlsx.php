@@ -67,6 +67,7 @@ function &xls_parseAll($path)
 			if (!$file) {
 				return $data;
 			}
+			
 			$d = new \Spreadsheet_Excel_Reader();
 			$d->setOutputEncoding('utf-8');
 			$d->read($file);
