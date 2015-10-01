@@ -49,6 +49,7 @@ function &xls_parseTable($path, $list)
 function &xls_parseAll($path)
 {
 	$data = infra_cache(array($path), 'xls_parseAll', function &($path) {
+
 		$file = infra_theme($path);
 
 		
@@ -217,7 +218,7 @@ function &xls_parseAll($path)
 
 		return $data;
 	}, array($path));
-
+	
 	return $data;
 }
 function &xls_parse($path, $list = false)
@@ -228,23 +229,13 @@ function &xls_parse($path, $list = false)
 			return $k;
 		});
 	}
-
 	return $data[$list];
-}
-
-function &xls_make2($path)
-{
-	$data = &xls_make($path);
-	xls_runGroups($data, function (&$group) {
-		unset($group['parent']);
-	});
-
-	return $data;
 }
 function &xls_make($path)
 {
+	
 	$datamain = xls_parseAll($path);
-
+	
 	if (!$datamain) {
 		return;
 	}
@@ -355,13 +346,14 @@ function &xls_make($path)
 
 	return $groups;
 }
-function &xls_runPoss(&$data, $callback, $back = false)
+function &xls_runPoss(&$data, $callback)
 {
 	return xls_runGroups($data, function &(&$group) use ($back, &$callback) {
-		return infra_forr($group['data'], function &(&$pos, $i) use (&$callback, &$group) {
-			return $callback($pos, $i, $group);
-		}, $back);
-	}, $back);
+		foreach($group['data'] as $i=>&$pos){
+			$r=&$callback($pos, $i, $group);
+			if(!is_null($r))return $r;
+		}
+	});
 }
 
 function _xls_createGroup($title, &$parent, $type, &$row = false)
@@ -478,7 +470,7 @@ function xls_processPoss(&$data, $ishead = false)
 
 				return $r;
 			});
-			$p['group'] = &$data;//Рекурсия
+			$p['parent'] = &$data;//Рекурсия
 			$group[$i] = &$p;
 			$r = null;
 
@@ -488,17 +480,6 @@ function xls_processPoss(&$data, $ishead = false)
 			unset($data['head']);
 		}
 	});
-}
-function xls_print($data)
-{
-	echo '<pre>';
-	xls_runGroups($data, function (&$group) {
-		unset($group['parent']);
-	});
-	xls_runPoss($data, function (&$pos) {
-		unset($pos['group']);
-	});
-	print_r($data);
 }
 function xls_processPossFilter(&$data, $props)
 {
@@ -617,7 +598,7 @@ function xls_merge(&$gr, &$addgr)
 
 	for ($i = 0, $l = sizeof($addgr['data']); $i++; $i < $l) {
 		$pos = &$addgr['data'][$i];
-		$pos['group'] = &$gr;
+		$pos['parent'] = &$gr;
 		$gr['data'][] = &$pos;
 	}
 	return;
@@ -812,7 +793,7 @@ function xls_processGroupMiss(&$data)
 			array_splice($group['childs'], $i, 1, $gr['childs']);
 
 			infra_forr($gr['data'], function &(&$p) use (&$gr) {
-				$p['group'] = &$gr['parent'];
+				$p['parent'] = &$gr['parent'];
 				$gr['parent']['data'][] = $p;
 				$r = null;
 
@@ -1202,7 +1183,7 @@ function &xls_init($path, $config = array())
 	if (@!$config['Известные колонки']) {
 		$config['Известные колонки'] = array('Производитель','Наименование','Описание','Артикул');
 	}
-	$config['Известные колонки'][] = 'group';
+	$config['Известные колонки'][] = 'parent';
 	foreach ($config['Подготовить для адреса'] as $k => $v) {
 		$config['Известные колонки'][] = $v;
 		$config['Известные колонки'][] = $k;
@@ -1211,39 +1192,26 @@ function &xls_init($path, $config = array())
 		xls_processPossMore($data, $config['Известные колонки']);
 		//позициям + more
 	}
+	xls_runGroups($data, function (&$group) {
+		$group['group'] = $group['parent']['title'];
+		if ($group['descr']['Наименование']) {
+			$group['Группа'] = $group['descr']['Наименование'];
+		} else {
+			$group['Группа'] = $group['title'];
+		}
+	});
+	xls_runPoss($data, function (&$pos, $i, $group) {
+		$pos['group'] = $group['title'];
+		$pos['Группа'] = $group['Группа'];
+	});
+	
 
-	if (!isset($config['group_title'])) {
-		$config['group_title'] = true;
-	}
-
-	if (@$config['group_title']) {
-		xls_runPoss($data, function (&$pos) {
-			$pos['group_title'] = $pos['group']['title'];
-		});
-	}
-
-	if (!isset($config['parent_title'])) {
-		$config['parent_title'] = true;
-	}
-	if (@$config['parent_title']) {
-		xls_runGroups($data, function (&$group) {
-			$group['parent_title'] = $group['parent']['title'];
-		});
-	}
-
-	if (@$config['Ссылка parent']) {
-		//group parent data childs
-		xls_runPoss($data, function (&$pos) {
-			$pos['parent'] = &$pos['group'];
-			unset($pos['group']);
-		});
-	} else {
+	if (!@$config['Ссылка parent']) {
 		xls_runGroups($data, function (&$group) {
 			unset($group['parent']);
 		});
-
 		xls_runPoss($data, function (&$pos, $i) {
-			unset($pos['group']);
+			unset($pos['parent']);
 		});
 	}
 
@@ -1274,22 +1242,28 @@ class Xlsx
 		$data=xls_make($src);
 		
 		xls_processDescr($data);
+		
 		xls_processPoss($data);
-		self::runGroups($data, function (&$gr) {
+		
+		Xlsx::runGroups($data, function (&$gr) {
 			unset($gr['parent']);
 		});
-		xls_runPoss($data, function (&$pos) {
-			unset($pos['group']);
+		Xlsx::runPoss($data, function (&$pos) {
+			unset($pos['parent']);
 		});
 		return $data;
 	}
-	public static function &runGroups(&$data, $callback)
+	public static function &runGroups(&$data, $callback, $back = false)
 	{
-		return xls_runGroups($data, $callback);
+		return xls_runGroups($data, $callback, $back);
 	}
-	public static function &runPoss(&$data, $callback)
+	public static function isSpecified($val = null){
+		if (is_null($val) || $val==='') return false;
+		return true;
+	}
+	public static function &runPoss(&$data, $callback, $back = false)
 	{
-		return xls_runPoss($data, $callback);
+		return xls_runPoss($data, $callback, $back);
 	}
 	/**
 	 * Функция считывает листы из Excle книги или папки с Excel книгами.
