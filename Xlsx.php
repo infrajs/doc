@@ -410,7 +410,7 @@ function _xls_createGroup($title, &$parent, $type, &$row = false)
 		//'tparam'=>false,
 		//'groups'=>false,//Количество групп вместе с текущей
 		//'count'=>false,
-		'row' => &$row,//Вся строка группы
+		//'row' => $row,//Вся строка группы
 		'miss' => $miss,//Группу надо расформировать, но мы не знаем ещё есть ли в ней позиции
 		'type' => $type,
 		'parent' => &$parent,
@@ -562,16 +562,7 @@ function xls_merge(&$gr, &$addgr)
 
 
 	//$gr['miss']=0;
-	/*	Группа Мебель в Каталог.xls не содержит позиций
-		Excel Мебель.xls содержит позиции только в подгруппах листах
-		Была ошибка Группа Мебель пропадала с сайта.
-		Для кники устанавливается miss по умолчанию
-		а группа из Каталог.xls без объединения оставалась пустой и удалялась.
-		Сначало делается объединение а потом проверяется какие пустые группы удалить.
-		ну и в момент объединения miss долже стать 0
-		потому что мы почему-то объединяем в book а должны в лист Каталог.xls
 
-	*/
 	infra_forr($addgr['childs'], function &(&$val) use (&$gr) {
 		$val['parent'] = &$gr;
 		$gr['childs'][] = &$val;
@@ -595,10 +586,10 @@ function xls_merge(&$gr, &$addgr)
 	} else {
 		$gr['tparam'] = @$addgr['tparam'];
 	}
-
-	for ($i = 0, $l = sizeof($addgr['data']); $i++; $i < $l) {
+	for ($i = 0, $l = sizeof($addgr['data']); $i < $l; $i++) {
 		$pos = &$addgr['data'][$i];
 		$pos['parent'] = &$gr;
+		
 		$gr['data'][] = &$pos;
 	}
 	return;
@@ -1217,7 +1208,6 @@ function &xls_init($path, $config = array())
 
 	xls_runGroups($data, function (&$data, $i, &$group) {
 		//path
-		unset($data['row']);
 
 		if (!$group) {
 			$data['path'] = array();
