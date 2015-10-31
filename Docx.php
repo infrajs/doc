@@ -479,7 +479,7 @@ class Docx
 
 		$param = infra_cache(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
 
-$conf = infra_config();
+			$conf = infra_config();
 			$imgmaxwidth = $conf['files']['imgmaxwidth'];
 			$previewlen = $conf['files']['previewlen'];
 
@@ -491,10 +491,11 @@ $conf = infra_config();
 			//Обновление страницы проходит уже нормально
 			//Полагаю в линукс такой ошибки не будет хз почему возникает
 			@docx_full_del_dir($cachefolder);
+			$path=infra_theme($src);
+			if (!$path) return array();
+			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cachefolder, $re);
 
-			$xmls = docx_getTextFromZippedXML(infra_theme($src), 'word/document.xml', $cachefolder, $re);
-
-$rIds = array();
+			$rIds = array();
 			$param = array('folder' => $cachefolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'type' => $type, 'rIds' => $rIds);
 			if ($xmls[0]) {
 				$xmlar = docx_dom_to_array($xmls[0]);
@@ -511,7 +512,7 @@ $rIds = array();
 				$html = '';
 			}
 
-$param['html'] = $html;
+			$param['html'] = $html;
 
 			return $param;
 		}, $args);
