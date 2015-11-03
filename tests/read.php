@@ -9,8 +9,10 @@ use itlife\infra\ext\Ans;
 
 
 $text = Docx::get('*files/tests/resources/test.docx');
-if (!$text || mb_strlen($text) != 1063) {
-	return Ans::err($ans, 'Cant read file .docx strlen '.strlen($text));
+
+
+if (!$text || mb_strlen($text) != 1056) {
+	return Ans::err($ans, 'Cant read file .docx mb_strlen '.mb_strlen($text));
 }
 $preview = Docx::preview('*files/tests/resources/test.docx');
 if (sizeof($preview) != 12) {
@@ -22,8 +24,8 @@ if (sizeof($preview['links']) != 4) {
 if (sizeof($preview['images']) != 1) {
 	return Ans::err($ans, 'Cant read images test.docx');
 }
-if (mb_strlen($preview['preview']) != 120) {
-	return Ans::err($ans, 'Cant read test.docx preview '.strlen($preview['preview']));
+if (mb_strlen($preview['preview']) != 119) {
+	return Ans::err($ans, 'Cant read test.docx preview '.mb_strlen($preview['preview']));
 }
 
 $name = 'test.tpl';
