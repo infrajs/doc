@@ -87,10 +87,6 @@ if (in_array($fdata['ext'], array('mht'))) {
 	$txt = files\Mht::get($src);
 	return Ans::txt($txt);
 }
-if (in_array($fdata['ext'], array('xls', 'xlsx'))) {
-	$ans = files\Xlsx::get($src);
-	return Ans::ans($ans);
-}
 if (in_array($fdata['ext'], array('tpl', 'html', 'htm','php'))) {
 	$txt = infra_loadTEXT($src);
 	return Ans::txt($txt);

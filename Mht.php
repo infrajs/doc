@@ -2,7 +2,7 @@
 /**
  * Mht parser. Depricated - mht устарел и кодировку надо тестировать, работает только cp1251 и utf8
  */
-namespace itlife\files;
+namespace infrajs\files;
 
 class Mht
 {

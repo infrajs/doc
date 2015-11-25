@@ -1,6 +1,6 @@
 <?php
 
-namespace itlife\files;
+namespace infrajs\files;
 
 function docx_full_del_dir($directory)
 {
@@ -343,7 +343,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$h .= $tag[0].$t;
 	} else {
 		//Вложенность
-		$hr = docx_each($el, '\\itlife\\files\\docx_analyse', $param, $key);
+		$hr = docx_each($el, '\\infrajs\\files\\docx_analyse', $param, $key);
 		if ($tag[0] == '<p>' && preg_match("/\{.*\}/", $hr)) {
 			$t = strip_tags($hr);
 			if ($t{0} == '{' && $t{strlen($t) - 1} == '}') {
@@ -475,7 +475,7 @@ class Docx
 	 */
 	public static function parse($src)
 	{
-		$args = array($src,$imgmaxwidth,$previewlen);
+		$args = array($src, $imgmaxwidth, $previewlen);
 
 		$param = infra_cache(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
 
@@ -506,7 +506,7 @@ class Docx
 				}
 
 				$param['rIds'] = $rIds;
-				$html = docx_each($xmlar, '\\itlife\\files\\docx_analyse', $param);
+				$html = docx_each($xmlar, '\\infrajs\\files\\docx_analyse', $param);
 			} else {
 				$param['rIds'] = array();
 				$html = '';
@@ -515,7 +515,7 @@ class Docx
 			$param['html'] = $html;
 
 			return $param;
-		}, $args);
+		}, $args, isset($_GET['re']));
 		unset($param['rIds']);
 		unset($param['type']);
 		unset($param['imgmaxwidth']);

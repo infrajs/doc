@@ -1,8 +1,11 @@
 {
 	"name": "infrajs/files",
-	"description": "Parser docx xlsx",
+	"description": "Parser docx",
 	"license": "GPL3",
 	"autoload": {
 		"psr-4": { "infrajs\\files\\": "/" }
+	},
+	"require":{
+		"infrajs/infra":"~1"
 	}
 }
