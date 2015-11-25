@@ -15,8 +15,8 @@ History
 
 //..'xls'=>'?*pages/xls/xls.php?src='
 
-use itlife\infra\ext\Ans;
-use itlife\files;
+use infrajs\infra\ext\Ans;
+use infrajs\files;
 
 $isrc = infra_toutf(urldecode($_SERVER['QUERY_STRING']));
 
