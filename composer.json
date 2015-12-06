@@ -6,6 +6,7 @@
 		"psr-4": { "infrajs\\files\\": "/" }
 	},
 	"require":{
+		"infrajs/path":"~1",
 		"infrajs/infra":"~1"
 	}
 }
