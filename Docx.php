@@ -407,7 +407,7 @@ class Docx
 	{
 		$param = self::parse($src);
 
-		$data = infra_srcinfo($src);
+		$data = Load::srcInfo($src);
 		$data = infra_nameinfo($data['file']);
 
 		$patern = '/###cut###/U';
@@ -436,7 +436,7 @@ class Docx
 		} else {
 			$img = false;
 		}*/
-		$filetime = filemtime(infra_theme($src));
+		$filetime = filemtime(Path::theme($src));
 		$data['modified'] = $filetime;
 		if (!empty($param['links'])) {
 			$data['links'] = $param['links'];
@@ -477,9 +477,9 @@ class Docx
 	{
 		$args = array($src, $imgmaxwidth, $previewlen);
 
-		$param = infra_cache(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
+		$param = Cache::exec(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
 
-			$conf = infra_config();
+			$conf = Infra::config();
 			$imgmaxwidth = $conf['files']['imgmaxwidth'];
 			$previewlen = $conf['files']['previewlen'];
 
@@ -491,7 +491,7 @@ class Docx
 			//Обновление страницы проходит уже нормально
 			//Полагаю в линукс такой ошибки не будет хз почему возникает
 			@docx_full_del_dir($cachefolder);
-			$path=infra_theme($src);
+			$path=Path::theme($src);
 			if (!$path) return array();
 			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cachefolder, $re);
 

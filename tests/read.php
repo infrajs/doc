@@ -4,7 +4,7 @@ infra_test(true);
 
 use infrajs\files\Docx;
 use infrajs\files\Mht;
-use infrajs\infra\ext\Ans;
+use infrajs\ans\Ans;
 
 
 $text = Docx::get('*files/tests/resources/test.docx');

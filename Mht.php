@@ -15,7 +15,7 @@ class Mht
 	{
 		$param=self::parse($src);
 
-		$data = infra_srcinfo($src);
+		$data = Load::srcInfo($src);
 		$data = infra_nameinfo($data['file']);
 
 
@@ -33,7 +33,7 @@ class Mht
 		$preview = preg_replace("/\s+/", ' ', $preview);
 		$preview = trim($preview);
 
-		$filetime = filemtime(infra_theme($src));
+		$filetime = filemtime(Path::theme($src));
 		$data['modified'] = $filetime;
 		if (!empty($param['links'])) {
 			$data['links'] = $param['links'];
@@ -57,21 +57,21 @@ class Mht
 	}
 	public static function parse($src)
 	{
-		$src=infra_theme($src);
+		$src=Path::theme($src);
 		if (!$src) {
 			return;
 		}
 
 		$args = array($src);
-		return infra_cache(array($src), 'mhtparse', function ($src) {
-			$conf = infra_config();
+		return Cache::exec(array($src), 'mhtparse', function ($src) {
+			$conf = Infra::config();
 			$imgmaxwidth = $conf['files']['imgmaxwidth'];
 			$previewlen = $conf['files']['previewlen'];
 
-			$filename=infra_theme($src);
-			$fdata=infra_srcinfo($src);
+			$filename=Path::theme($src);
+			$fdata=Load::srcInfo($src);
 			if ($fdata['ext']=='php') {
-				$data = infra_loadTEXT($filename);
+				$data = Load::loadTEXT($filename);
 			} else {
 				$data = file_get_contents($filename);
 			}
@@ -86,7 +86,7 @@ class Mht
 
 				preg_match("/^(\d*)/", $fname, $match);
 				$date = $match[0];
-				$fname = infra_toutf(preg_replace('/^\d*\s+/', '', $fname));
+				$fname = Path::toutf(preg_replace('/^\d*\s+/', '', $fname));
 				$fname = preg_replace('/\.\w{0,4}$/', '', $fname);
 
 				$ar = preg_split('/------=_NextPart_.*/', $data);
@@ -170,9 +170,9 @@ class Mht
 
 
 
-				$html = infra_toutf($html);//Виндовые файлы хранятся в cp1251
+				$html = Path::toutf($html);//Виндовые файлы хранятся в cp1251
 
-				$folder = infra_toutf($folder);
+				$folder = Path::toutf($folder);
 				$html = preg_replace('/ src=".*\/(.*)"/U', ' src="'.$folder.'${1}"', $html);
 
 
