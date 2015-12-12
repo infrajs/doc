@@ -1,9 +1,10 @@
 <?php
-/**
- * Mht parser. Depricated - mht устарел и кодировку надо тестировать, работает только cp1251 и utf8
- */
 namespace infrajs\doc;
+
+use infrajs\cache\Cache;
 use infrajs\path\Path;
+use infrajs\load\Load;
+
 
 class Mht
 {
@@ -69,9 +70,9 @@ class Mht
 
 		$args = array($src);
 		return Cache::exec(array($src), 'mhtparse', function ($src) {
-			$conf = Infra::config();
-			$imgmaxwidth = $conf['files']['imgmaxwidth'];
-			$previewlen = $conf['files']['previewlen'];
+			$conf = Mht::$conf;
+			$imgmaxwidth = $conf['imgmaxwidth'];
+			$previewlen = $conf['previewlen'];
 
 			$filename=Path::theme($src);
 			$fdata=Load::srcInfo($src);

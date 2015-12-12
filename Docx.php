@@ -1,9 +1,9 @@
 <?php
-
 namespace infrajs\doc;
+
 use infrajs\cache\Cache;
 use infrajs\path\Path;
-
+use infrajs\load\Load;
 
 class Docx
 {
@@ -18,20 +18,14 @@ class Docx
 		$data = Load::srcInfo($src);
 		$data = Load::nameInfo($data['file']);
 
-		$patern = '/###cut###/U';
-		$d = preg_split($patern, $param['html']);
-		if (sizeof($d) > 1) {
-			$param['html'] = preg_replace($patern, '', $param['html']);
-			$preview = $d[0];
+		
+		$temphtml = strip_tags($param['html'], '<p>');
+		//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
+		preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
+		if (sizeof($match) > 1) {
+			$preview = $match[1];
 		} else {
-			$temphtml = strip_tags($param['html'], '<p>');
-			//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
-			preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
-			if (sizeof($match) > 1) {
-				$preview = $match[1];
-			} else {
-				$preview = $param['html'];
-			}
+			$preview = $param['html'];
 		}
 		$preview = preg_replace('/<h1.*<\/h1>/U', '', $preview);
 		$preview = preg_replace('/<img.*>/U', '', $preview);
@@ -83,28 +77,26 @@ class Docx
 	 */
 	public static function parse($src)
 	{
-		$args = array($src, $imgmaxwidth, $previewlen);
-
-		$param = Cache::exec(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
-
+		$args = array($src);
+		$param = Cache::exec(array($src), 'docx_parse', function ($src, $re) {
 			$conf = Docx::$conf;
 			$imgmaxwidth = $conf['imgmaxwidth'];
 			$previewlen = $conf['previewlen'];
 
-			$cachename = md5($src);
+			$cachename = Path::encode($src);
 
-			$cachefolder = Path::resolve('~docx/'.$cachename.'/');
+			$cachefolder = Path::resolve('|docx/'.$cachename.'/');
 
 //В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
 			//Обновление страницы проходит уже нормально
 			//Полагаю в линукс такой ошибки не будет хз почему возникает
-			@docx_full_del_dir($cachefolder);
+			docx_full_del_dir($cachefolder);
 			$path=Path::theme($src);
-			if (!$path) return array();
+			if (!$path) return array('html'=>false);
 			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cachefolder, $re);
 
 			$rIds = array();
-			$param = array('folder' => $cachefolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'type' => $type, 'rIds' => $rIds);
+			$param = array('folder' => $cachefolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'rIds' => $rIds);
 			if ($xmls[0]) {
 				$xmlar = docx_dom_to_array($xmls[0]);
 				$xmlar2 = docx_dom_to_array($xmls[1]);
@@ -114,7 +106,7 @@ class Docx
 				}
 
 				$param['rIds'] = $rIds;
-				$html = docx_each($xmlar, '\\infrajs\\files\\docx_analyse', $param);
+				$html = docx_each($xmlar, '\\infrajs\\doc\\docx_analyse', $param);
 			} else {
 				$param['rIds'] = array();
 				$html = '';
@@ -304,6 +296,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	$isli = false;
 	$isheading = false;
 	$h = '';
+	$t = '';
 
 	//Таблицы
 	if (is_array($el) && @$el['tbl'] == '1') {
@@ -480,7 +473,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$h .= $tag[0].$t;
 	} else {
 		//Вложенность
-		$hr = docx_each($el, '\\infrajs\\files\\docx_analyse', $param, $key);
+		$hr = docx_each($el, '\\infrajs\\doc\\docx_analyse', $param, $key);
 		if ($tag[0] == '<p>' && preg_match("/\{.*\}/", $hr)) {
 			$t = strip_tags($hr);
 			if ($t{0} == '{' && $t{strlen($t) - 1} == '}') {
