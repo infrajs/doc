@@ -9,7 +9,8 @@ class Docx
 {
 	public static $conf=array(
 		"imgmaxwidth" => 1000,
-		"previewlen" => 150
+		"previewlen" => 150,
+		'cache'=>'|docx/'
 	);
 	public static function preview($src)
 	{
@@ -85,18 +86,22 @@ class Docx
 
 			$cachename = Path::encode($src);
 
-			$cachefolder = Path::resolve('|docx/'.$cachename.'/');
+			$cacheFolder = Path::resolve(Docx::$conf['cache'].$cachename.'/');
 
 //В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
 			//Обновление страницы проходит уже нормально
 			//Полагаю в линукс такой ошибки не будет хз почему возникает
-			docx_full_del_dir($cachefolder);
+
+			Cache::fullrmdir($cacheFolder, true);
+			$r=mkdir($cacheFolder);
+			if(!$r) throw new \Exception('Не удалось создать папку для кэша '.$cacheFolder);
+
 			$path=Path::theme($src);
 			if (!$path) return array('html'=>false);
-			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cachefolder, $re);
+			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cacheFolder, $re);
 
 			$rIds = array();
-			$param = array('folder' => $cachefolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'rIds' => $rIds);
+			$param = array('folder' => $cacheFolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'rIds' => $rIds);
 			if ($xmls[0]) {
 				$xmlar = docx_dom_to_array($xmls[0]);
 				$xmlar2 = docx_dom_to_array($xmls[1]);
@@ -159,7 +164,7 @@ function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $de
 	// И пытаемся открыть переданный zip-файл
 
 	if ($zip->open($archiveFile)) {
-		@mkdir($cacheFolder);
+		
 		$zip->extractTo($cacheFolder);
 		// В случае успеха ищем в архиве файл с данными
 		$xml = false;
