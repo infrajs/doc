@@ -2,10 +2,15 @@
 /**
  * Mht parser. Depricated - mht устарел и кодировку надо тестировать, работает только cp1251 и utf8
  */
-namespace infrajs\files;
+namespace infrajs\doc;
+use infrajs\path\Path;
 
 class Mht
 {
+	public static $conf=array(
+		"imgmaxwidth" => 1000,
+		"previewlen" => 150
+	);
 	public static function get($src)
 	{
 		$param=self::parse($src);
@@ -16,7 +21,7 @@ class Mht
 		$param=self::parse($src);
 
 		$data = Load::srcInfo($src);
-		$data = infra_nameinfo($data['file']);
+		$data = Load::nameInfo($data['file']);
 
 
 		$temphtml = strip_tags($param['html'], '<p><b><strong><i>');
@@ -96,9 +101,8 @@ class Mht
 					unset($ar[sizeof($ar) - 1]);
 				}
 				$ar = array_values($ar);
-				$dirs = infra_dirs();
 
-				$folder = $dirs['cache'].'mht/'.md5($src).'/';
+				$folder = Path::resolve('~mht/'.md5($src).'/');
 				@mkdir($folder);
 				$html = '';
 				for ($i = 0, $l = sizeof($ar); $i < $l; ++$i) {

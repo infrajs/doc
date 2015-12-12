@@ -1,6 +1,143 @@
 <?php
 
-namespace infrajs\files;
+namespace infrajs\doc;
+use infrajs\cache\Cache;
+use infrajs\path\Path;
+
+
+class Docx
+{
+	public static $conf=array(
+		"imgmaxwidth" => 1000,
+		"previewlen" => 150
+	);
+	public static function preview($src)
+	{
+		$param = self::parse($src);
+
+		$data = Load::srcInfo($src);
+		$data = Load::nameInfo($data['file']);
+
+		$patern = '/###cut###/U';
+		$d = preg_split($patern, $param['html']);
+		if (sizeof($d) > 1) {
+			$param['html'] = preg_replace($patern, '', $param['html']);
+			$preview = $d[0];
+		} else {
+			$temphtml = strip_tags($param['html'], '<p>');
+			//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
+			preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
+			if (sizeof($match) > 1) {
+				$preview = $match[1];
+			} else {
+				$preview = $param['html'];
+			}
+		}
+		$preview = preg_replace('/<h1.*<\/h1>/U', '', $preview);
+		$preview = preg_replace('/<img.*>/U', '', $preview);
+		$preview = preg_replace('/<p.*>\s*<\/p>/iU', '', $preview);
+		$preview = preg_replace("/\s+/", ' ', $preview);
+		$preview = trim($preview);
+		/*preg_match('/<img.*src=["\'](.*)["\'].*>/U', $param['html'], $match);
+		if ($match && $match[1]) {
+			$img = $match[1];
+		} else {
+			$img = false;
+		}*/
+		$filetime = filemtime(Path::theme($src));
+		$data['modified'] = $filetime;
+		if (!empty($param['links'])) {
+			$data['links'] = $param['links'];
+		}
+		if (!empty($param['heading'])) {
+			$data['heading'] = $param['heading'];
+		}
+		//title - depricated
+		if (!empty($data['name'])) {
+			$data['title'] = $data['name'];
+		}
+		/*if ($img) {
+			$data['img'] = $img;
+		}*/
+		if (!empty($param['images'])) {
+			$data['images'] = $param['images'];
+		}
+
+		$data['preview'] = $preview;
+
+		return $data;
+	}
+	public static function get($src)
+	{
+		//От логика infra-com отказались
+		/*
+			Содержмое txt не может повлиять на работу infrajs
+			Если мы хотим иметь такую новость, которая будет менять сайт, нужно заложить эту логику в layers.json в данные
+		*/
+		$param = self::parse($src);
+
+		return $param['html'];
+	}
+	/**
+	 * Кэширумеая функция, основной разбор.
+	 */
+	public static function parse($src)
+	{
+		$args = array($src, $imgmaxwidth, $previewlen);
+
+		$param = Cache::exec(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
+
+			$conf = Docx::$conf;
+			$imgmaxwidth = $conf['imgmaxwidth'];
+			$previewlen = $conf['previewlen'];
+
+			$cachename = md5($src);
+
+			$cachefolder = Path::resolve('~docx/'.$cachename.'/');
+
+//В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
+			//Обновление страницы проходит уже нормально
+			//Полагаю в линукс такой ошибки не будет хз почему возникает
+			@docx_full_del_dir($cachefolder);
+			$path=Path::theme($src);
+			if (!$path) return array();
+			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cachefolder, $re);
+
+			$rIds = array();
+			$param = array('folder' => $cachefolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'type' => $type, 'rIds' => $rIds);
+			if ($xmls[0]) {
+				$xmlar = docx_dom_to_array($xmls[0]);
+				$xmlar2 = docx_dom_to_array($xmls[1]);
+
+				foreach ($xmlar2['Relationships']['Relationship'] as $v) {
+					$rIds[$v['Id']] = $v['Target'];
+				}
+
+				$param['rIds'] = $rIds;
+				$html = docx_each($xmlar, '\\infrajs\\files\\docx_analyse', $param);
+			} else {
+				$param['rIds'] = array();
+				$html = '';
+			}
+
+			$param['html'] = $html;
+
+			return $param;
+		}, $args, isset($_GET['re']));
+		unset($param['rIds']);
+		unset($param['type']);
+		unset($param['imgmaxwidth']);
+		unset($param['previewlen']);
+		unset($param['isli']);
+		unset($param['isul']);
+		unset($param['imgnum']);
+		unset($param['folder']);
+
+		return $param;
+	}
+}
+
+
 
 function docx_full_del_dir($directory)
 {
@@ -401,130 +538,3 @@ function docx_get($src, $type = 'norm', $re = false)
 	return Docx::get($src, $type, $re);
 }
 
-class Docx
-{
-	public static function preview($src)
-	{
-		$param = self::parse($src);
-
-		$data = Load::srcInfo($src);
-		$data = infra_nameinfo($data['file']);
-
-		$patern = '/###cut###/U';
-		$d = preg_split($patern, $param['html']);
-		if (sizeof($d) > 1) {
-			$param['html'] = preg_replace($patern, '', $param['html']);
-			$preview = $d[0];
-		} else {
-			$temphtml = strip_tags($param['html'], '<p>');
-			//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
-			preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
-			if (sizeof($match) > 1) {
-				$preview = $match[1];
-			} else {
-				$preview = $param['html'];
-			}
-		}
-		$preview = preg_replace('/<h1.*<\/h1>/U', '', $preview);
-		$preview = preg_replace('/<img.*>/U', '', $preview);
-		$preview = preg_replace('/<p.*>\s*<\/p>/iU', '', $preview);
-		$preview = preg_replace("/\s+/", ' ', $preview);
-		$preview = trim($preview);
-		/*preg_match('/<img.*src=["\'](.*)["\'].*>/U', $param['html'], $match);
-		if ($match && $match[1]) {
-			$img = $match[1];
-		} else {
-			$img = false;
-		}*/
-		$filetime = filemtime(Path::theme($src));
-		$data['modified'] = $filetime;
-		if (!empty($param['links'])) {
-			$data['links'] = $param['links'];
-		}
-		if (!empty($param['heading'])) {
-			$data['heading'] = $param['heading'];
-		}
-		//title - depricated
-		if (!empty($data['name'])) {
-			$data['title'] = $data['name'];
-		}
-		/*if ($img) {
-			$data['img'] = $img;
-		}*/
-		if (!empty($param['images'])) {
-			$data['images'] = $param['images'];
-		}
-
-		$data['preview'] = $preview;
-
-		return $data;
-	}
-	public static function get($src)
-	{
-		//От логика infra-com отказались
-		/*
-			Содержмое txt не может повлиять на работу infrajs
-			Если мы хотим иметь такую новость, которая будет менять сайт, нужно заложить эту логику в layers.json в данные
-		*/
-		$param = self::parse($src);
-
-		return $param['html'];
-	}
-	/**
-	 * Кэширумеая функция, основной разбор.
-	 */
-	public static function parse($src)
-	{
-		$args = array($src, $imgmaxwidth, $previewlen);
-
-		$param = Cache::exec(array($src), 'docx_parse', function ($src, $imgmaxwidth, $previewlen, $re) {
-
-			$conf = Infra::config();
-			$imgmaxwidth = $conf['files']['imgmaxwidth'];
-			$previewlen = $conf['files']['previewlen'];
-
-			$cachename = md5($src);
-			$dirs = infra_dirs();
-			$cachefolder = $dirs['cache'].'docx/'.$cachename.'/';
-
-//В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
-			//Обновление страницы проходит уже нормально
-			//Полагаю в линукс такой ошибки не будет хз почему возникает
-			@docx_full_del_dir($cachefolder);
-			$path=Path::theme($src);
-			if (!$path) return array();
-			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cachefolder, $re);
-
-			$rIds = array();
-			$param = array('folder' => $cachefolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'type' => $type, 'rIds' => $rIds);
-			if ($xmls[0]) {
-				$xmlar = docx_dom_to_array($xmls[0]);
-				$xmlar2 = docx_dom_to_array($xmls[1]);
-
-				foreach ($xmlar2['Relationships']['Relationship'] as $v) {
-					$rIds[$v['Id']] = $v['Target'];
-				}
-
-				$param['rIds'] = $rIds;
-				$html = docx_each($xmlar, '\\infrajs\\files\\docx_analyse', $param);
-			} else {
-				$param['rIds'] = array();
-				$html = '';
-			}
-
-			$param['html'] = $html;
-
-			return $param;
-		}, $args, isset($_GET['re']));
-		unset($param['rIds']);
-		unset($param['type']);
-		unset($param['imgmaxwidth']);
-		unset($param['previewlen']);
-		unset($param['isli']);
-		unset($param['isul']);
-		unset($param['imgnum']);
-		unset($param['folder']);
-
-		return $param;
-	}
-}

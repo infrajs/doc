@@ -1,5 +1,6 @@
 {
-	"files":{
+	"doc":{
+		"require":"*doc/infra.php",
 		"imgmaxwidth":1000,
 		"previewlen":150
 	}

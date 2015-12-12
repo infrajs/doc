@@ -1,11 +1,10 @@
 <?php
 
-infra_test(true);
-
-use infrajs\files\Docx;
-use infrajs\files\Mht;
+namespace infrajs\doc;
+use infrajs\access\Access;
 use infrajs\ans\Ans;
 
+Access::test(true);
 
 $text = Docx::get('*files/tests/resources/test.docx');
 
