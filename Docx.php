@@ -10,7 +10,7 @@ class Docx
 	public static $conf=array(
 		"imgmaxwidth" => 1000,
 		"previewlen" => 150,
-		'cache'=>'|docx/'
+		'cache'=>'!docx/'
 	);
 	public static function preview($src)
 	{
@@ -368,7 +368,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		}
 		$param['images'][] = array('src' => $src);
 
-		$src = '?*imager/imager.php?src='.$src;
+		$src = '?-imager/imager.php?src='.$src;
 		if ($height) {
 			$src .= '&h='.$height;
 		}
