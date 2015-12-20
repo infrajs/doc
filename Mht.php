@@ -8,10 +8,6 @@ use infrajs\load\Load;
 
 class Mht
 {
-	public static $conf=array(
-		"imgmaxwidth" => 1000,
-		"previewlen" => 150
-	);
 	public static function get($src)
 	{
 		$param=self::parse($src);
@@ -70,7 +66,7 @@ class Mht
 
 		$args = array($src);
 		return Cache::exec(array($src), 'mhtparse', function ($src) {
-			$conf = Mht::$conf;
+			$conf = Docx::$conf;
 			$imgmaxwidth = $conf['imgmaxwidth'];
 			$previewlen = $conf['previewlen'];
 

@@ -22,11 +22,11 @@ use infrajs\load\Load;
 
 $isrc = Path::toutf(urldecode($_SERVER['QUERY_STRING']));
 
-Access::adminModified();
+Access::modified();
 
 $fdata = Load::srcInfo($isrc);
 
-$src = Access::adminCache('files_get_php', function ($isrc) {
+$src = Access::cache('files_get_php', function ($isrc) {
 	$src = Path::theme($isrc);
 	if ($src) {
 		return $src;

@@ -94,7 +94,10 @@ class Docx
 
 			Cache::fullrmdir($cacheFolder, true);
 			$r=mkdir($cacheFolder);
-			if(!$r) throw new \Exception('Не удалось создать папку для кэша '.$cacheFolder);
+			if(!$r) {
+				echo '<pre>';
+				throw new \Exception('Не удалось создать папку для кэша '.$cacheFolder);
+			}
 
 			$path=Path::theme($src);
 			if (!$path) return array('html'=>false);
