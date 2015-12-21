@@ -1,5 +1,5 @@
 {
-	"require":"infra.php",
+	"install":"install.php",
 	"imgmaxwidth":1000,
 	"conf":"infrajs\\doc\\Docx",
 	"previewlen":150
