@@ -366,7 +366,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		}
 		$param['images'][] = array('src' => Path::toutf($src));
 
-		$src = '?-imager/?src='.$src;
+		$src = '/-imager/?src='.Path::toutf($src);
 		if ($height) {
 			$src .= '&h='.$height;
 		}
