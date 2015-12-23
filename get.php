@@ -82,11 +82,11 @@ if (!$src) {
 $fdata = Load::srcInfo($src);
 
 if (in_array($fdata['ext'], array('docx'))) {
-	$txt = files\Docx::get($src);
+	$txt = Docx::get($src);
 	return Ans::txt($txt);
 }
 if (in_array($fdata['ext'], array('mht'))) {
-	$txt = files\Mht::get($src);
+	$txt = Mht::get($src);
 	return Ans::txt($txt);
 }
 if (in_array($fdata['ext'], array('tpl', 'html', 'htm','php'))) {

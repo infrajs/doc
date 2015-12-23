@@ -10,7 +10,7 @@ class Docx
 	public static $conf=array(
 		"imgmaxwidth" => 1000,
 		"previewlen" => 150,
-		'cache'=>'!docx/'
+		'cache'=>'!doc/'
 	);
 	public static function preview($src)
 	{
@@ -85,19 +85,14 @@ class Docx
 			$previewlen = $conf['previewlen'];
 
 			$cachename = Path::encode($src);
-
-			$cacheFolder = Path::resolve(Docx::$conf['cache'].$cachename.'/');
-
+			$cacheFolder = Path::mkdir(Docx::$conf['cache'].$cachename.'/');
+		
 //В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
 			//Обновление страницы проходит уже нормально
 			//Полагаю в линукс такой ошибки не будет хз почему возникает
 
-			Cache::fullrmdir($cacheFolder, true);
-			$r=mkdir($cacheFolder);
-			if(!$r) {
-				echo '<pre>';
-				throw new \Exception('Не удалось создать папку для кэша '.$cacheFolder);
-			}
+			Cache::fullrmdir($cacheFolder);
+			
 
 			$path=Path::theme($src);
 			if (!$path) return array('html'=>false);
@@ -327,7 +322,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		if (!$param['images']) {
 			$param['images'] = array();
 		}
-		$param['images'][] = array('src' => $src);
+		$param['images'][] = array('src' => Path::toutf($src));
 		//$tag=array('<img align="'.$align.'" src="'.$src.'">','');
 		$tag = array('<div style="background-color:gray; color:white; font-weight:normal; padding:5px; font-size:14px; float:'.$align.'">Некорректно<br>добавленная<br>картинка</div>','');
 	//Картинки
@@ -369,9 +364,9 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		if (!@$param['images']) {
 			$param['images'] = array();
 		}
-		$param['images'][] = array('src' => $src);
+		$param['images'][] = array('src' => Path::toutf($src));
 
-		$src = '?-imager/imager.php?src='.$src;
+		$src = '?-imager/?src='.$src;
 		if ($height) {
 			$src .= '&h='.$height;
 		}

@@ -99,8 +99,7 @@ class Mht
 				}
 				$ar = array_values($ar);
 
-				$folder = Path::resolve('~mht/'.md5($src).'/');
-				@mkdir($folder);
+				$folder = Path::mkdir(Docx::$conf['cache'].md5($src).'/');
 				$html = '';
 				for ($i = 0, $l = sizeof($ar); $i < $l; ++$i) {
 					if (!$ar[$i]) {
