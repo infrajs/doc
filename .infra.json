@@ -1,7 +1,8 @@
 {
-	"install":"install.php",
+	"update":"update.php",
 	"conf":"infrajs\\doc\\Docx",
 	"cache":"!doc/",
+	"dependencies":"path",
 	"imgmaxwidth":1000,
 	"previewlen":150
 }
