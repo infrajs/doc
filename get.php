@@ -20,7 +20,7 @@ use infrajs\ans\Ans;
 use infrajs\access\Access;
 use infrajs\load\Load;
 
-$isrc = Path::toutf(urldecode($_SERVER['QUERY_STRING']));
+$isrc = Ans::GET('src');//Path::toutf(urldecode($_SERVER['QUERY_STRING']));
 
 Access::modified();
 
