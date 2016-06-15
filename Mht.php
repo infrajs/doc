@@ -336,6 +336,9 @@ class Mht
 			$html=html_entity_decode($html, ENT_COMPAT, 'UTF-8');
 			$html=preg_replace('/ /U', '', $html);//bugfix списки в mht порождаются адский символ. в eval-е скрипта недопустим.
 			$ans['html'] = $html;
+			foreach($ans['images'] as &$item){
+				$item['src'] = preg_replace('/^\//', '', $item['src']);
+			}
 			return $ans;
 		}, $args);
 	}
