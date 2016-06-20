@@ -18,7 +18,8 @@ class Mht
 		$param=self::parse($src);
 
 		$data = Load::srcInfo($src);
-		$data = Load::nameInfo($data['file']);
+		unset($data['query']);
+		//$data = Load::nameInfo($data['file']);
 
 
 		$temphtml = strip_tags($param['html'], '<p><b><strong><i>');

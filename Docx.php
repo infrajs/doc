@@ -17,7 +17,8 @@ class Docx
 		$param = self::parse($src);
 
 		$data = Load::srcInfo($src);
-		$data = Load::nameInfo($data['file']);
+		unset($data['query']);
+		//$data = Load::nameInfo($data['file']);
 
 		
 		$temphtml = strip_tags($param['html'], '<p>');
@@ -506,7 +507,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 				$param['links'] = array();
 			}
 			$href = $param['rIds'][$el['id']];
-			$param['links'][] = array('href' => $href,'title' => $hr);
+			$param['links'][] = array('href' => $href,'title' => strip_tags($hr));
 		}
 		$h .= $hr;
 	}
