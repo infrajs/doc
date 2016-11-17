@@ -161,21 +161,28 @@ function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $de
 	$zip = new \ZipArchive();
 
 	// И пытаемся открыть переданный zip-файл
-
+	if ((int) phpversion() > 6) {
+		$archiveFile = realpath($archiveFile);
+		$archiveFile = Path::toutf($archiveFile);
+	}
 	if ($zip->open($archiveFile)) {
+		if ((int) phpversion() > 6) {
+			$cacheFolder = realpath($cacheFolder);
+			$cacheFolder = Path::toutf($cacheFolder);
+		}
 		
 		$zip->extractTo($cacheFolder);
 		// В случае успеха ищем в архиве файл с данными
 		$xml = false;
 		$xml2 = false;
 		$file = $contentFile;
+
 		if (($index = $zip->locateName($file)) !== false) {
 			// Если находим, то читаем его в строку
 			$content = $zip->getFromIndex($index);
 			// После этого подгружаем все entity и по возможности include'ы других файлов
 			$xml = \DOMDocument::loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
 		}
-
 		$file = 'word/_rels/document.xml.rels';
 		if (($index = $zip->locateName($file)) !== false) {
 			// Если находим, то читаем его в строку
