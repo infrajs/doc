@@ -388,6 +388,8 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		//if($width)$tag.=' width="'.$width.'px"';
 		if ($alt) {
 			$tag .= ' alt="'.$alt.'"';
+		} else {
+			$tag .= ' alt=""';
 		}
 		if (!$inline && $align) {
 			$tag .= ' class="img-thumbnail '.$align.'"';
