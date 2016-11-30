@@ -85,7 +85,7 @@ class Docx
 			$imgmaxwidth = $conf['imgmaxwidth'];
 			$previewlen = $conf['previewlen'];
 
-			$cachename = Path::encode($src);
+			$cachename = Path::tofs(Path::encode($src));
 			$cacheFolder = Path::mkdir(Docx::$conf['cache'].$cachename.'/');
 		
 //В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
@@ -163,13 +163,13 @@ function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $de
 	// И пытаемся открыть переданный zip-файл
 	if ((int) phpversion() > 6) {
 		$archiveFile = realpath($archiveFile);
-		$archiveFile = Path::toutf($archiveFile);
+		$archiveFile = Path::tofs($archiveFile);
+
+		$cacheFolder = realpath($cacheFolder);
+		$cacheFolder = Path::tofs($cacheFolder);
 	}
-	if ($zip->open($archiveFile)) {
-		if ((int) phpversion() > 6) {
-			$cacheFolder = realpath($cacheFolder);
-			$cacheFolder = Path::toutf($cacheFolder);
-		}
+
+	if ($zip->open($archiveFile) === true) {
 		
 		$zip->extractTo($cacheFolder);
 		// В случае успеха ищем в архиве файл с данными
