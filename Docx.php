@@ -181,13 +181,13 @@ function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $de
 			// Если находим, то читаем его в строку
 			$content = $zip->getFromIndex($index);
 			// После этого подгружаем все entity и по возможности include'ы других файлов
-			$xml = \DOMDocument::loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
+			$xml = @\DOMDocument::loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
 		}
 		$file = 'word/_rels/document.xml.rels';
 		if (($index = $zip->locateName($file)) !== false) {
 			// Если находим, то читаем его в строку
 			$content = $zip->getFromIndex($index);
-			$xml2 = \DOMDocument::loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
+			$xml2 = @\DOMDocument::loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
 		//@ - https://bugs.php.net/bug.php?id=41398 Strict Standards:  Non-static method DOMDocument::loadXML() should not be called statically
 		}
 		$zip->close();
