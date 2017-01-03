@@ -28,9 +28,7 @@ $fdata = Load::srcInfo($isrc);
 
 $src = Access::cache('files_get_php', function ($isrc) {
 	$src = Path::theme($isrc);
-	if ($src) {
-		return $src;
-	}
+	if ($src) return $src;
 	$fdata = Load::srcInfo($isrc);
 	$folder = Path::theme($fdata['folder']);
 
@@ -73,9 +71,7 @@ $src = Access::cache('files_get_php', function ($isrc) {
 
 $ans = array('src' => $isrc);
 if (!$src) {
-	if (!Load::isphp()) {
-		header('HTTP/1.0 404 Not Found');
-	}
+	if (!Load::isphp()) header('HTTP/1.0 404 Not Found');
 	return;
 }
 

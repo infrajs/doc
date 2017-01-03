@@ -96,9 +96,11 @@ class Docx
 			
 
 			$path=Path::theme($src);
+
+
 			if (!$path) return array('html'=>false);
 			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cacheFolder, $re);
-
+			
 			$rIds = array();
 			$param = array('folder' => $cacheFolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'rIds' => $rIds);
 			if ($xmls[0]) {
@@ -167,10 +169,14 @@ function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $de
 
 		$cacheFolder = realpath($cacheFolder);
 		$cacheFolder = Path::tofs($cacheFolder);
-	}
 
+		if (!empty($_SERVER['WINDIR'])) { //Только для Виндовс
+			$archiveFile = Path::toutf($archiveFile);
+			$cacheFolder = Path::toutf($cacheFolder);
+		}
+	}
 	if ($zip->open($archiveFile) === true) {
-		
+
 		$zip->extractTo($cacheFolder);
 		// В случае успеха ищем в архиве файл с данными
 		$xml = false;
