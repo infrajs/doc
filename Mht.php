@@ -241,7 +241,7 @@ class Mht
 						$alt = html_entity_decode($alt, ENT_QUOTES, 'utf-8');
 
 						preg_match('/align="(.*)".*/U', $sfind, $match2);
-						$align = trim($match2[1]);
+						$align = isset($match2[1])? trim($match2[1]) : '';
 						$align = html_entity_decode($align, ENT_QUOTES, 'utf-8');
 
 						$big = $images[$small];
