@@ -85,7 +85,7 @@ class Docx
 			$imgmaxwidth = $conf['imgmaxwidth'];
 			$previewlen = $conf['previewlen'];
 
-			$cachename = Path::tofs(Path::encode($src));
+			$cachename = Path::encode($src);
 			$cacheFolder = Path::mkdir(Docx::$conf['cache'].$cachename.'/');
 		
 //В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
@@ -172,7 +172,7 @@ function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $de
 
 		if (!empty($_SERVER['WINDIR'])) { //Только для Виндовс
 			$archiveFile = Path::toutf($archiveFile);
-			$cacheFolder = Path::toutf($cacheFolder);
+			//$cacheFolder = Path::toutf($cacheFolder);
 		}
 	}
 	if ($zip->open($archiveFile) === true) {
