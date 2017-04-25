@@ -139,13 +139,9 @@ class Docx
 
 function docx_full_del_dir($directory)
 {
-	if (!$directory) {
-		return;
-	}
-	$dir = @opendir($directory);
-	if (!$dir) {
-		return;
-	}
+	if (!$directory) return;
+	$dir = opendir($directory);
+	if (!$dir) return;
 	while ($file = readdir($dir)) {
 		if (is_file($directory.'/'.$file)) {
 			unlink($directory.'/'.$file);
@@ -187,13 +183,15 @@ function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $de
 			// Если находим, то читаем его в строку
 			$content = $zip->getFromIndex($index);
 			// После этого подгружаем все entity и по возможности include'ы других файлов
-			$xml = @\DOMDocument::loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
+			$xml = new \DOMDocument();
+			$xml->loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
 		}
 		$file = 'word/_rels/document.xml.rels';
 		if (($index = $zip->locateName($file)) !== false) {
 			// Если находим, то читаем его в строку
 			$content = $zip->getFromIndex($index);
-			$xml2 = @\DOMDocument::loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
+			$xml2 = new \DOMDocument();
+			$xml2->loadXML($content, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
 		//@ - https://bugs.php.net/bug.php?id=41398 Strict Standards:  Non-static method DOMDocument::loadXML() should not be called statically
 		}
 		$zip->close();
@@ -316,7 +314,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	$t = '';
 
 	//Таблицы
-	if (is_array($el) && @$el['tbl'] == '1') {
+	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = true;
 		$tag = array("<table class='table table-striped'>\n",'</table>');
 	} elseif ($key === 'w:tr' && $param['istable']) {
@@ -341,17 +339,13 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$tag = array('<div style="background-color:gray; color:white; font-weight:normal; padding:5px; font-size:14px; float:'.$align.'">Некорректно<br>добавленная<br>картинка</div>','');
 	//Картинки
 	} elseif ($keyparent === 'w:drawing') {
-		if (!@$param['imgnum']) {
-			$param['imgnum'] = 0;
-		}
+		if (empty($param['imgnum'])) $param['imgnum'] = 0;
 		$imgnum = ++$param['imgnum'];
 
 		//$origsrc=$el['wp:docPr']['descr'];
 		$inline = ($key == 'wp:inline');
-		$align = @$el['wp:positionH']['wp:align'];
-		if ($align !== 'left') {
-			$align = 'right';
-		}
+		$align = empty($el['wp:positionH']['wp:align']);
+		if ($align !== 'left') $align = 'right';
 
 		$width = ceil($el['wp:extent']['cx'] / 8000);
 		$height = ceil($el['wp:extent']['cy'] / 8000);
@@ -373,11 +367,13 @@ function docx_analyse($el, $key, &$param, $keyparent)
 			$src .= '.wtf';
 		}
 
-		$alt = @$el['wp:docPr']['title'];
-
-		if (!@$param['images']) {
-			$param['images'] = array();
+		if (isset($el['wp:docPr']['title'])) {
+			$alt = $el['wp:docPr']['title'];
+		} else {
+			$alt = '';
 		}
+
+		if (empty($param['images'])) $param['images'] = array();
 		$param['images'][] = array('src' => Path::toutf($src));
 
 		$src = '/-imager/?src='.Path::toutf($src);
@@ -414,14 +410,12 @@ function docx_analyse($el, $key, &$param, $keyparent)
 			$tag[1] = '</a>';
 		}
 	//Список
-	} elseif ($key === 'w:p' && @$el['w:pPr'] && @$el['w:pPr']['w:numPr']) {
+	} elseif ($key === 'w:p' && isset($el['w:pPr']['w:numPr'])) {
 		$isli = true;
 		$param['isli'] = true;
-		$v = @$el['w:pPr']['w:numPr']['w:numId'];
-		if (@$param['isul'] !== $v) {
-			if (@$param['isul']) {
-				$h .= "</ul>\n";
-			}
+		$v = isset($el['w:pPr']['w:numPr']['w:numId'])?$el['w:pPr']['w:numPr']['w:numId']:'';
+		if (isset($param['isul']) && $param['isul'] !== $v) {
+			if (!empty($param['isul'])) $h .= "</ul>\n";
 			$param['isul'] = $v;
 			$h .= "<ul>\n";
 			$tag = array('<li>','</li>');
@@ -429,19 +423,19 @@ function docx_analyse($el, $key, &$param, $keyparent)
 			$tag = array('<li>','</li>');
 		}
 	//h1 h2 h3 h4
-	} elseif ($key === 'w:p' && @$el['rsidR'] && @$el['w:pPr'] && @$el['w:pPr']['w:pStyle'] && in_array(@$el['w:pPr']['w:pStyle']['val'], array(1, 2, 3, 4, 5, 6))) {
+	} elseif ($key === 'w:p' && !empty($el['rsidR']) && isset($el['w:pPr']['w:pStyle']['val']) && in_array($el['w:pPr']['w:pStyle']['val'], array(1, 2, 3, 4, 5, 6))) {
 		$isheading = true;
 		$v = $el['w:pPr']['w:pStyle']['val'];
 		$tag = array('<h'.$v.'>','</h'.$v.">\n");
 	//Абзац
-	} elseif ($key === 'w:p' && @$el['rsidR']) {
+	} elseif ($key === 'w:p' && !empty($el['rsidR'])) {
 		$tag = array('<p>',"</p>\n");
 	//a
-	} elseif ($key === 'w:r' && @$el['history']) {
+	} elseif ($key === 'w:r' && !empty($el['history'])) {
 		$href = $param['rIds'][$el['id']];
 		$tag = array('<a href="'.$href.'">','</a>');
 	//b i u
-	} elseif ($key === 'w:r' && @$el['w:rPr'] &&
+	} elseif ($key === 'w:r' && !empty($el['w:rPr']) &&
 		   (isset($el['w:rPr']['w:i']) || isset($el['w:rPr']['w:b']) || isset($el['w:rPr']['w:u']))) {
 		if (isset($el['w:rPr']['w:i'])) {
 			$tag[0] .= '<i>';
@@ -463,10 +457,10 @@ function docx_analyse($el, $key, &$param, $keyparent)
 			$tag[1] .= '</i>';
 		}
 	//<i>
-	} elseif ($key === 'w:r' && @$el['w:rPr'] && isset($el['w:rPr']['w:i'])) {
+	} elseif ($key === 'w:r' && isset($el['w:rPr']['w:i'])) {
 		$tag = array('<i>','</i>');
 	//<b>
-	} elseif ($key === 'w:r' && @$el['w:rPr'] && isset($el['w:rPr']['w:b'])) {
+	} elseif ($key === 'w:r' && isset($el['w:rPr']['w:b'])) {
 		$tag = array('<b>','</b>');
 	//<br>
 	} elseif ($key === 'w:br') {
@@ -474,7 +468,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	}
 
 	//Список
-	if (@$param['isul'] && !@$param['isli']) {
+	if (!empty($param['isul']) && !empty($param['isli'])) {
 		//Есть метка что мы в ul и нет что в li
 		$param['isul'] = false;
 		$h .= '</ul>';
@@ -514,13 +508,11 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		}
 		$h .= $tag[0];//Открывающий тэг
 		//<a>
-		if ($isheading && !@$param['heading']) {
+		if ($isheading && empty($param['heading'])) {
 			$param['heading'] = strip_tags($hr);
 		}
-		if ($key === 'w:r' && @$el['history']) {
-			if (!@$param['links']) {
-				$param['links'] = array();
-			}
+		if ($key === 'w:r' && !empty($el['history'])) {
+			if (empty($param['links'])) $param['links'] = array();
 			$href = $param['rIds'][$el['id']];
 			$param['links'][] = array('href' => $href,'title' => strip_tags($hr));
 		}
@@ -529,7 +521,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	//=====================
 
 	//Таблицы
-	if (is_array($el) && @$el['tbl'] == '1') {
+	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = false;
 	//Список
 	} elseif ($isli) {
