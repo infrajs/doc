@@ -317,12 +317,12 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = true;
 		$tag = array("<table class='table table-striped'>\n",'</table>');
-	} elseif ($key === 'w:tr' && $param['istable']) {
+	} elseif ($key === 'w:tr' && !empty($param['istable'])) {
 		$tag = array("<tr>\n",'</tr>');
 	//}else if($key==='w:p'&&$param['istable']){
-	} elseif ($key === 'w:tc' && $param['istable']) {
+	} elseif ($key === 'w:tc' && !empty($param['istable'])) {
 		$tag = array('<td>','</td>');
-	} elseif ($key == 'w:pict' && $el['v:shape']) {
+	} elseif ($key == 'w:pict' && !empty($el['v:shape'])) {
 		$rid = $el['v:shape']['v:imagedata']['id'];
 		$src = $param['folder'].'word/'.$param['rIds'][$rid];
 		$style = $el['v:shape']['style'];
