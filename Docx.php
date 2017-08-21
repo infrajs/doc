@@ -12,6 +12,23 @@ class Docx
 		"previewlen" => 150,
 		'cache'=>'!doc/'
 	);
+	public static function getPreview($html)
+	{
+		$temphtml = strip_tags($html, '<p>');
+		//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
+		preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
+		if (sizeof($match) > 1) {
+			$preview = $match[1];
+		} else {
+			$preview = $html;
+		}
+		$preview = preg_replace('/<h1.*<\/h1>/U', '', $preview);
+		$preview = preg_replace('/<img.*>/U', '', $preview);
+		$preview = preg_replace('/<p.*>\s*<\/p>/iU', '', $preview);
+		$preview = preg_replace("/\s+/", ' ', $preview);
+		$preview = trim($preview);
+		return $preview;
+	}
 	public static function preview($src)
 	{
 		$param = self::parse($src);
@@ -21,19 +38,8 @@ class Docx
 		//$data = Load::nameInfo($data['file']);
 
 		
-		$temphtml = strip_tags($param['html'], '<p>');
-		//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
-		preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
-		if (sizeof($match) > 1) {
-			$preview = $match[1];
-		} else {
-			$preview = $param['html'];
-		}
-		$preview = preg_replace('/<h1.*<\/h1>/U', '', $preview);
-		$preview = preg_replace('/<img.*>/U', '', $preview);
-		$preview = preg_replace('/<p.*>\s*<\/p>/iU', '', $preview);
-		$preview = preg_replace("/\s+/", ' ', $preview);
-		$preview = trim($preview);
+		$preview = Docx::getPreview($param['html']);
+		
 		/*preg_match('/<img.*src=["\'](.*)["\'].*>/U', $param['html'], $match);
 		if ($match && $match[1]) {
 			$img = $match[1];
