@@ -14,7 +14,7 @@ class Docx
 	);
 	public static function getPreview($html)
 	{
-		$temphtml = strip_tags($html, '<p>');
+		$temphtml = strip_tags($html, '<p><a><b><i>');
 		//preg_match('/^(<p.*>.{'.$previewlen.'}.*<\/p>)/U',$temphtml,$match);
 		preg_match('/(<p.*>.{1}.*<\/p>)/U', $temphtml, $match);
 		if (sizeof($match) > 1) {
