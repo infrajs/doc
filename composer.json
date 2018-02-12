@@ -2,7 +2,6 @@
 	"name": "infrajs/doc",
 	"homepage":"https://github.com/infrajs/doc",
 	"description": "Parser docx",
-	"license": "GPL3",
 	"autoload": {
 		"psr-4": { "infrajs\\doc\\": "/" }
 	},
