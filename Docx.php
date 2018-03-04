@@ -1,7 +1,8 @@
 <?php
 namespace infrajs\doc;
 
-use infrajs\cache\Cache;
+use infrajs\cache\Cache as OldCache;
+use akiyatkin\boo\Cache;
 use infrajs\path\Path;
 use infrajs\load\Load;
 
@@ -86,7 +87,7 @@ class Docx
 	public static function parse($src)
 	{
 		$args = array($src);
-		$param = Cache::exec(array($src), 'docx_parse', function ($src, $re) {
+		$param = Cache::exec('Разбор документов Word', function ($src) {
 			$conf = Docx::$conf;
 			$imgmaxwidth = $conf['imgmaxwidth'];
 			$previewlen = $conf['previewlen'];
@@ -97,15 +98,14 @@ class Docx
 //В винде ингда вылетает о шибка что нет прав удалить какой-то файл в папке и как следствие саму папку
 			//Обновление страницы проходит уже нормально
 			//Полагаю в линукс такой ошибки не будет хз почему возникает
-
-			Cache::fullrmdir($cacheFolder);
+			OldCache::fullrmdir($cacheFolder);
 			
 
 			$path=Path::theme($src);
 
 
 			if (!$path) return array('html'=>false);
-			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cacheFolder, $re);
+			$xmls = docx_getTextFromZippedXML($path, 'word/document.xml', $cacheFolder);
 			
 			$rIds = array();
 			$param = array('folder' => $cacheFolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'rIds' => $rIds);
@@ -125,17 +125,17 @@ class Docx
 			}
 
 			$param['html'] = $html;
+			unset($param['rIds']);
 
+			unset($param['type']);
+			unset($param['imgmaxwidth']);
+			unset($param['previewlen']);
+			unset($param['isli']);
+			unset($param['isul']);
+			unset($param['imgnum']);
+			unset($param['folder']);
 			return $param;
-		}, $args, isset($_GET['re']));
-		unset($param['rIds']);
-		unset($param['type']);
-		unset($param['imgmaxwidth']);
-		unset($param['previewlen']);
-		unset($param['isli']);
-		unset($param['isul']);
-		unset($param['imgnum']);
-		unset($param['folder']);
+		}, $args, ['akiyatkin\boo\Cache','getModifiedTime'], array($src));
 
 		return $param;
 	}
@@ -158,7 +158,7 @@ function docx_full_del_dir($directory)
 	closedir($dir);
 	rmdir($directory);
 }
-function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder, $debug)
+function docx_getTextFromZippedXML($archiveFile, $contentFile, $cacheFolder)
 {
 	// Создаёт "реинкарнацию" zip-архива...
 

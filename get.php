@@ -21,7 +21,7 @@ use infrajs\access\Access;
 use infrajs\load\Load;
 
 $isrc = Ans::GET('src');//Path::toutf(urldecode($_SERVER['QUERY_STRING']));
-
+$isrc = Path::pretty($isrc);
 Access::modified();
 
 $fdata = Load::srcInfo($isrc);
@@ -78,15 +78,15 @@ if (!$src) {
 $fdata = Load::srcInfo($src);
 
 if (in_array($fdata['ext'], array('docx'))) {
-	$txt = Docx::get($src);
+	$txt = Docx::get($isrc);
 	return Ans::txt($txt);
 }
 if (in_array($fdata['ext'], array('mht'))) {
-	$txt = Mht::get($src);
+	$txt = Mht::get($isrc);
 	return Ans::txt($txt);
 }
 if (in_array($fdata['ext'], array('tpl', 'html', 'htm','php'))) {
-	$txt = Load::loadTEXT($src);
+	$txt = Load::loadTEXT($isrc);
 	return Ans::txt($txt);
 }
 if (!Load::isphp()) {

@@ -1,9 +1,9 @@
 <?php
 namespace infrajs\doc;
 
-use infrajs\cache\Cache;
 use infrajs\path\Path;
 use infrajs\load\Load;
+use akiyatkin\boo\Cache;
 
 
 class Mht
@@ -65,21 +65,21 @@ class Mht
 
 		return $data;
 	}
-	public static function parse($src)
+	public static function parse($path)
 	{
-		$src=Path::theme($src);
+		$src = Path::theme($path);
 		if (!$src) {
 			return;
 		}
 
-		$args = array($src);
-		return Cache::exec(array($src), 'mhtparse', function ($src) {
+		$args = array($path);
+		return Cache::exec('Разбор документов MHT', function ($path) {
 			$conf = Docx::$conf;
 			$imgmaxwidth = $conf['imgmaxwidth'];
 			$previewlen = $conf['previewlen'];
 
-			$filename=Path::theme($src);
-			$fdata=Load::srcInfo($src);
+			$filename=Path::theme($path);
+			$fdata=Load::srcInfo($path);
 			if ($fdata['ext']=='php') {
 				$data = Load::loadTEXT($filename);
 			} else {
@@ -107,7 +107,7 @@ class Mht
 				}
 				$ar = array_values($ar);
 
-				$folder = Path::mkdir(Docx::$conf['cache'].md5($src).'/');
+				$folder = Path::mkdir(Docx::$conf['cache'].md5($path).'/');
 				$html = '';
 				for ($i = 0, $l = sizeof($ar); $i < $l; ++$i) {
 					if (!$ar[$i]) {
@@ -348,6 +348,6 @@ class Mht
 				$item['src'] = preg_replace('/^\//', '', $item['src']);
 			}
 			return $ans;
-		}, $args);
+		}, $args, ['akiyatkin\boo\Cache','getModifiedTime'], array($path));
 	}
 }

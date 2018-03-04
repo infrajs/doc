@@ -6,6 +6,7 @@
 		"psr-4": { "infrajs\\doc\\": "/" }
 	},
 	"require":{
-		"infrajs/path":"~1"
+		"infrajs/path":"~1",
+		"akiyatkin/boo":"~1"
 	}
 }
