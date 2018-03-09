@@ -28,7 +28,7 @@ $fdata = Load::srcInfo($isrc);
 
 $src = Access::cache('files_get_php', function ($isrc) {
 	$src = Path::theme($isrc);
-	if ($src) return $src;
+	if ($src) return $isrc;
 	$fdata = Load::srcInfo($isrc);
 	$folder = Path::theme($fdata['folder']);
 
@@ -65,8 +65,7 @@ $src = Access::cache('files_get_php', function ($isrc) {
 	if (!$result) {
 		return false;
 	}
-
-	return Path::theme($folder.$result);
+	return $folder.$result;
 }, array($fdata['path']), isset($_GET['re']));
 
 $ans = array('src' => $isrc);
@@ -75,6 +74,7 @@ if (!$src) {
 	return;
 }
 
+$src = Path::theme($src);
 $fdata = Load::srcInfo($src);
 
 if (in_array($fdata['ext'], array('docx'))) {
