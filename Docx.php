@@ -23,8 +23,8 @@ class Docx
 		} else {
 			$preview = $html;
 		}
-		$preview = preg_replace('/<h1[^>]*<\/h1>/U', '', $preview);
-		$preview = preg_replace('/<img[^>]*>/U', '', $preview);
+		$preview = preg_replace('/<h1[^>]*>.*<\/h1>/iU', '', $preview);
+		$preview = preg_replace('/<img[^>]*>/iU', '', $preview);
 		$preview = preg_replace('/<p[^>]*>\s*<\/p>/iU', '', $preview);
 		$preview = preg_replace("/\s+/", ' ', $preview);
 		$preview = trim($preview);
