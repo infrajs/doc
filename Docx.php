@@ -337,7 +337,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		} else {
 			$align = 'left';
 		}
-		if (!$param['images']) {
+		if (empty($param['images'])) {
 			$param['images'] = array();
 		}
 		$param['images'][] = array('src' => Path::toutf($src));
