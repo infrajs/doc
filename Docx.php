@@ -420,8 +420,8 @@ function docx_analyse($el, $key, &$param, $keyparent)
 
 		$isli = true;
 		$param['isli'] = true;
-		//$v = isset($el['w:pPr']['w:numPr']['w:numId'])?$el['w:pPr']['w:numPr']['w:numId']:'';
-		$v = $el['rsidRPr'];
+		$v = isset($el['w:pPr']['w:numPr']['w:numId'])?$el['w:pPr']['w:numPr']['w:numId']:'';
+		//$v = $el['rsidRPr'];
 		if (!isset($param['isul']) || $param['isul'] !== $v) {
 			if (!empty($param['isul']) && $param['isul'] !== $v) $h .= "</ul>\n"; //Раньше был список
 			$param['isul'] = $v;
