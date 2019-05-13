@@ -289,6 +289,7 @@ function docx_each(&$el, $callback, &$param, $key = false)
 	$tagel = array_merge($tagel, array('w:p', 'w:tr', 'w:tc'));
 
 	$h = '';
+
 	foreach ($el as $k => &$val) {
 		if (is_integer($k)) {
 			$h .= docx_each($val, $callback, $param, $key);
@@ -320,6 +321,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	$t = '';
 	//Таблицы
 
+	
 	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = true;
 		$tag = array("<table class='table table-striped'>\n",'</table>');
@@ -474,13 +476,19 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$tag = array('<br>','');
 	}
 	//Список
-	if (!empty($param['isul']) && !$isli && $key == 'w:p') {
+	if ($key === 'w:p' && !empty($param['isul']) && !$isli) {
 		//li это абзац и проверяем только на уровне абзацев
 		//Есть метка что мы в ul и нет что в li
 		$param['isul'] = false;
 		$h .= "\n</ul>\n";
 	}
-
+	if ($key === 'w:p' && !empty($el['w:pPr']['w:pBdr']['w:top'])) {
+		$tag[0] = '<hr>'.$tag[0];
+	}
+	if ($key === 'w:p' && !empty($el['w:pPr']['w:pBdr']['w:bottom'])) {
+		$tag[1] = $tag[1].'<hr>';
+	}
+	
 //=====================
 	if ($key === 'w:t') {
 		//Текст
