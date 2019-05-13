@@ -318,8 +318,8 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	$isheading = false;
 	$h = '';
 	$t = '';
-
 	//Таблицы
+
 	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = true;
 		$tag = array("<table class='table table-striped'>\n",'</table>');
@@ -417,17 +417,18 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		}
 	//Список
 	} elseif ($key === 'w:p' && isset($el['w:pPr']['w:numPr'])) {
+
 		$isli = true;
 		$param['isli'] = true;
-		$v = isset($el['w:pPr']['w:numPr']['w:numId'])?$el['w:pPr']['w:numPr']['w:numId']:'';
-		if (isset($param['isul']) && $param['isul'] !== $v) {
-			if (!empty($param['isul'])) $h .= "</ul>\n";
+		//$v = isset($el['w:pPr']['w:numPr']['w:numId'])?$el['w:pPr']['w:numPr']['w:numId']:'';
+		$v = $el['rsidRPr'];
+		if (!isset($param['isul']) || $param['isul'] !== $v) {
+			if (!empty($param['isul']) && $param['isul'] !== $v) $h .= "</ul>\n"; //Раньше был список
 			$param['isul'] = $v;
 			$h .= "<ul>\n";
-			$tag = array('<li>','</li>');
-		} else {
-			$tag = array('<li>','</li>');
+			
 		}
+		$tag = array('<li>','</li>');
 	//h1 h2 h3 h4
 	} elseif ($key === 'w:p' && !empty($el['rsidR']) && isset($el['w:pPr']['w:pStyle']['val']) && in_array($el['w:pPr']['w:pStyle']['val'], array(1, 2, 3, 4, 5, 6))) {
 		$isheading = true;
@@ -472,12 +473,12 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	} elseif ($key === 'w:br') {
 		$tag = array('<br>','');
 	}
-
 	//Список
-	if (!empty($param['isul']) && !empty($param['isli'])) {
+	if (!empty($param['isul']) && !$isli && $key == 'w:p') {
+		//li это абзац и проверяем только на уровне абзацев
 		//Есть метка что мы в ul и нет что в li
 		$param['isul'] = false;
-		$h .= '</ul>';
+		$h .= "\n</ul>\n";
 	}
 
 //=====================
