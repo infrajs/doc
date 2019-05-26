@@ -330,18 +330,26 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	//}else if($key==='w:p'&&$param['istable']){
 	} elseif ($key === 'w:tc' && !empty($param['istable'])) {
 		$tag = array('<td>','</td>');
-	} elseif ($key == 'w:pict' && !empty($el['v:shape'])) {
-		$rid = $el['v:shape']['v:imagedata']['id'];
-		$src = $param['folder'].'word/'.$param['rIds'][$rid];
+	} elseif ($key == 'w:pict' && (
+		!empty($el['v:shape']['v:imagedata'])
+		||!empty($el['v:shape']['href'])
+	)) {
+
+
+		if (!empty($el['v:shape']['v:imagedata'])) {
+			$rid = $el['v:shape']['v:imagedata']['id'];
+			$src = $param['folder'].'word/'.$param['rIds'][$rid];
+		} else {
+			$src = $el['v:shape']['href'];
+		}
 		$style = $el['v:shape']['style'];
 		if (preg_match('/:right/', $style)) {
 			$align = 'right';
 		} else {
 			$align = 'left';
 		}
-		if (empty($param['images'])) {
-			$param['images'] = array();
-		}
+		if (empty($param['images'])) $param['images'] = array();
+		
 		$param['images'][] = array('src' => Path::toutf($src));
 		//$tag=array('<img align="'.$align.'" src="'.$src.'">','');
 		$tag = array('<div style="background-color:gray; color:white; font-weight:normal; padding:5px; font-size:14px; float:'.$align.'">Некорректно<br>добавленная<br>картинка</div>','');
