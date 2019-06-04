@@ -322,6 +322,8 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	//Таблицы
 
 	
+		
+		
 	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = true;
 		$tag = array("<table class='table table-striped'>\n",'</table>');
@@ -449,6 +451,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$isheading = true;
 		$v = $el['w:pPr']['w:pStyle']['val'];
 		$tag = array('<h'.$v.'>','</h'.$v.">\n");
+
 	//Абзац
 	} elseif ($key === 'w:p' && !empty($el['rsidR'])) {
 		$tag = array('<p>',"</p>\n");
@@ -461,6 +464,18 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$href = str_ireplace("\\", "/", $href);
 			
 		$tag = array('<a href="'.$href.'">','</a>');
+	//a H
+	} elseif (!empty($el['w:instrText']['_value']) && !empty($el['w:instrText']['_value']) && preg_match("/HYPERLINK/",$el['w:instrText']['_value'])) {
+		$r = explode('"',$el['w:instrText']['_value']);
+		$href = $r[1];
+		$href = str_ireplace("file:///C:\\", "/", $href);
+		$href = str_ireplace("C:\\", "/", $href);
+		$href = str_ireplace("file:///", "/", $href);
+		$href = str_ireplace("\\", "/", $href);
+		$param['href'] = $href;
+		$h .= '<a href="'.$href.'">';
+		//$tag[0] = $tag[0].'<a href="'.$href.'">';
+		//$tag[1] = '</a>'.$tag[1];
 	//b i u
 	} elseif ($key === 'w:r' && !empty($el['w:rPr']) &&
 		   (isset($el['w:rPr']['w:i']) || isset($el['w:rPr']['w:b']) || isset($el['w:rPr']['w:u']))) {
@@ -510,6 +525,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 //=====================
 	if ($key === 'w:t') {
 		//Текст
+
 		if (is_string($el)) {
 			$t .= $el;
 		} else {
@@ -543,6 +559,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		//<a>
 		if ($isheading && empty($param['heading'])) {
 			$param['heading'] = strip_tags($hr);
+			
 		}
 		if ($key === 'w:r' && !empty($el['history'])) {
 			if (empty($param['links'])) $param['links'] = array();
@@ -563,11 +580,15 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	} elseif ($isheading) {
 		//Вышли из какого-то li
 		$isheading = false;
+		if (isset($param['href'])) {
+			unset($param['href']);
+			$h.='</a>';
+		}
 	}
 
 	$h .= $tag[1];//Закрывающий тэг
 
-
+	
 	return $h;
 }
 function docx_get($src, $type = 'norm', $re = false)
