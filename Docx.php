@@ -422,8 +422,11 @@ function docx_analyse($el, $key, &$param, $keyparent)
 			//Ссылка на самой картинке
 			$r = $el['wp:docPr']['a:hlinkClick']['id'];
 			$href = $param['rIds'][$r];
+			$href = str_ireplace("file:///C:\\", "/", $href);
 			$href = str_ireplace("C:\\", "/", $href);
+			$href = str_ireplace("file:///", "/", $href);
 			$href = str_ireplace("\\", "/", $href);
+
 			$tag[0] = '<a href="'.$href.'">'.$tag[0];
 			$tag[1] = '</a>';
 		}
@@ -452,8 +455,12 @@ function docx_analyse($el, $key, &$param, $keyparent)
 	//a
 	} elseif ($key === 'w:r' && !empty($el['history'])) {
 		$href = $param['rIds'][$el['id']];
+		$href = str_ireplace("file:///C:\\", "/", $href);
 		$href = str_ireplace("C:\\", "/", $href);
+		$href = str_ireplace("file:///", "/", $href);
 		$href = str_ireplace("\\", "/", $href);
+		echo $href.'<br>';
+			
 		$tag = array('<a href="'.$href.'">','</a>');
 	//b i u
 	} elseif ($key === 'w:r' && !empty($el['w:rPr']) &&
