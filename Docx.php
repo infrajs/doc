@@ -459,7 +459,6 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$href = str_ireplace("C:\\", "/", $href);
 		$href = str_ireplace("file:///", "/", $href);
 		$href = str_ireplace("\\", "/", $href);
-		echo $href.'<br>';
 			
 		$tag = array('<a href="'.$href.'">','</a>');
 	//b i u
