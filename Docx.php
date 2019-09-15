@@ -326,7 +326,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		
 	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = true;
-		$tag = array("<table class='table table-striped'>\n",'</table>');
+		$tag = array("<table class='table table-sm table-striped'>\n",'</table>');
 	} elseif ($key === 'w:tr' && !empty($param['istable'])) {
 		$tag = array("<tr>\n",'</tr>');
 	//}else if($key==='w:p'&&$param['istable']){
