@@ -323,7 +323,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 
 	
 		
-		
+	$href = false;	
 	if (is_array($el) && isset($el['tbl']) && $el['tbl'] == '1') {
 		$param['istable'] = true;
 		$tag = array("<table class='table table-sm table-striped'>\n",'</table>');
@@ -462,7 +462,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$href = str_ireplace("C:\\", "/", $href);
 		$href = str_ireplace("file:///", "/", $href);
 		$href = str_ireplace("\\", "/", $href);
-			
+		//$param['rIds'][$el['id']] = $href;
 		$tag = array('<a href="'.$href.'">','</a>');
 	//a H
 	} elseif (!empty($el['w:instrText']['_value']) && !empty($el['w:instrText']['_value']) && preg_match("/HYPERLINK/",$el['w:instrText']['_value'])) {
@@ -561,9 +561,13 @@ function docx_analyse($el, $key, &$param, $keyparent)
 			$param['heading'] = strip_tags($hr);
 			
 		}
-		if ($key === 'w:r' && !empty($el['history'])) {
+		/*if ($key === 'w:r' && !empty($el['history'])) {
 			if (empty($param['links'])) $param['links'] = array();
 			$href = $param['rIds'][$el['id']];
+			$param['links'][] = array('href' => $href,'title' => strip_tags($hr));
+		}*/
+		if ($href) {
+			if (empty($param['links'])) $param['links'] = array();
 			$param['links'][] = array('href' => $href,'title' => strip_tags($hr));
 		}
 		$h .= $hr;
