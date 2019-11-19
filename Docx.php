@@ -23,11 +23,12 @@ class Docx
 		} else {
 			$preview = $html;
 		}
-		$preview = preg_replace('/<h1[^>]*>.*<\/h1>/iU', '', $preview);
-		$preview = preg_replace('/<img[^>]*>/iU', '', $preview);
-		$preview = preg_replace('/<p[^>]*>\s*<\/p>/iU', '', $preview);
-		$preview = preg_replace("/\s+/", ' ', $preview);
+		$preview = preg_replace('/<h1[^>]*>.*<\/h1>/iu', '', $preview);
+		$preview = preg_replace('/<img[^>]*>/iu', '', $preview);
+		$preview = preg_replace('/<p[^>]*>\s*<\/p>/iu', '', $preview);
+		$preview = preg_replace("/\s+/iu", ' ', $preview);
 		$preview = trim($preview);
+		
 		return $preview;
 	}
 	public static function preview($src)
