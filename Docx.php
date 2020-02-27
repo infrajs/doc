@@ -539,7 +539,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$hr = docx_each($el, '\\infrajs\\doc\\docx_analyse', $param, $key);
 		if ($tag[0] == '<p>' && preg_match("/\{.*\}/", $hr)) {
 			$t = strip_tags($hr);
-			if ($t{0} == '{' && $t{strlen($t) - 1} == '}') {
+			if ($t[0] == '{' && $t{strlen($t) - 1} == '}') {
 				$t = substr($t, 1, strlen($t) - 2);
 				$t = explode(':', $t);
 				if (sizeof($t) == 2) {

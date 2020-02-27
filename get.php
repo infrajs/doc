@@ -37,7 +37,7 @@ $src = Access::cache('files_get_php', function ($isrc) {
 	}
 	array_map(function ($file) use (&$result, $fdata) {
 
-		if ($file{0} == '.') {
+		if ($file[0] == '.') {
 			return;
 		}
 		$file=Path::toutf($file);
