@@ -548,7 +548,6 @@ function docx_analyse($el, $key, &$param, $keyparent)
 
 					if ($name == 'div') { //envdiv {div:tadam}
 						//чтобы обработать env нужно уже загрузить этот слой к этому времени env обработаны
-						//$hr='<script>if(window.infra)infra.when(infrajs,"onshow",function(){ infrajs.envSet("'.$t[1].'",true)});</script>';
 						$tag[0] = '<div id="'.$val.'">';
 						$tag[1] = '</div>';
 						$hr = '';
