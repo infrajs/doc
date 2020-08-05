@@ -3,7 +3,7 @@ namespace infrajs\doc;
 
 use infrajs\path\Path;
 use infrajs\load\Load;
-use akiyatkin\boo\Cache;
+use infrajs\cache\Cache;
 
 
 class Mht
@@ -68,12 +68,10 @@ class Mht
 	public static function parse($path)
 	{
 		$src = Path::theme($path);
-		if (!$src) {
-			return;
-		}
+		if (!$src) return;
 
 		$args = array($path);
-		return Cache::exec('Разбор документов MHT', function ($path) {
+		return Cache::exec(array($path), 'Разбор документов MHT', function ($path) {
 			$conf = Docx::$conf;
 			$imgmaxwidth = $conf['imgmaxwidth'];
 			$previewlen = $conf['previewlen'];
@@ -342,12 +340,12 @@ class Mht
 
 
 			$html=html_entity_decode($html, ENT_COMPAT, 'UTF-8');
-			$html=preg_replace('/ /U', '', $html);//bugfix списки в mht порождаются адский символ. в eval-е скрипта недопустим.
+			$html=preg_replace('//U', '', $html);//bugfix списки в mht порождаются адский символ. в eval-е скрипта недопустим.
 			$ans['html'] = $html;
 			foreach($ans['images'] as &$item){
 				$item['src'] = preg_replace('/^\//', '', $item['src']);
 			}
 			return $ans;
-		}, $args, ['akiyatkin\boo\Cache','getModifiedTime'], array($path));
+		}, $args);
 	}
 }
