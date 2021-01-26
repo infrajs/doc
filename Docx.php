@@ -427,6 +427,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 			$href = str_ireplace("C:\\", "/", $href);
 			$href = str_ireplace("file:///", "/", $href);
 			$href = str_ireplace("\\", "/", $href);
+			$href = str_ireplace("%3f", "?", $href);
 
 			$tag[0] = '<a href="' . $href . '">' . $tag[0];
 			$tag[1] = '</a>';
@@ -460,6 +461,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$href = str_ireplace("C:\\", "/", $href);
 		$href = str_ireplace("file:///", "/", $href);
 		$href = str_ireplace("\\", "/", $href);
+		$href = str_ireplace("%3f", "?", $href);
 		//$param['rIds'][$el['id']] = $href;
 		$tag = array('<a href="' . $href . '">', '</a>');
 		//a H
@@ -470,6 +472,7 @@ function docx_analyse($el, $key, &$param, $keyparent)
 		$href = str_ireplace("C:\\", "/", $href);
 		$href = str_ireplace("file:///", "/", $href);
 		$href = str_ireplace("\\", "/", $href);
+		$href = str_ireplace("%3f", "?", $href);
 		$param['href'] = $href;
 		$h .= '<a href="' . $href . '">';
 		//$tag[0] = $tag[0].'<a href="'.$href.'">';
