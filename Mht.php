@@ -25,11 +25,13 @@ class Mht
 		$temphtml = strip_tags($param['html'], '<p><b><strong><i>');
 		$temphtml=preg_replace('/\n/', ' ', $temphtml);
 		preg_match('/<p.*>(.+)<\/p>/U', $temphtml, $match);
+
 		if (sizeof($match) > 1) {
 			$preview = $match[1];
 		} else {
 			$preview = $param['html'];
 		}
+
 
 		if (sizeof($match) > 1) {
 			$preview = '<p>'.$match[1].'</p>';
@@ -38,9 +40,12 @@ class Mht
 		}
 
 		$preview = preg_replace('/<h1.*<\/h1>/U', '', $preview);
+
 		$preview = preg_replace('/<img.*>/U', '', $preview);
+
 		$preview = preg_replace('/<p.*>\s*<\/p>/iU', '', $preview);
-		$preview = preg_replace("/\s+/", ' ', $preview);
+
+		$preview = preg_replace("/\s+/u", ' ', $preview);
 		$preview = trim($preview);
 
 		$filetime = filemtime(Path::theme($src));
