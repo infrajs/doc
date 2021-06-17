@@ -27,6 +27,7 @@ class Docx
 		$preview = preg_replace('/<img[^>]*>/iu', '', $preview);
 		$preview = preg_replace('/<p[^>]*>\s*<\/p>/iu', '', $preview);
 		$preview = preg_replace("/\s+/iu", ' ', $preview);
+		$preview = strip_tags($preview,'<p><a>');
 		$preview = trim($preview);
 
 		return $preview;

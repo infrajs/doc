@@ -46,6 +46,7 @@ class Mht
 		$preview = preg_replace('/<p.*>\s*<\/p>/iU', '', $preview);
 
 		$preview = preg_replace("/\s+/u", ' ', $preview);
+		$preview = strip_tags($preview,'<p><a>');
 		$preview = trim($preview);
 
 		$filetime = filemtime(Path::theme($src));
