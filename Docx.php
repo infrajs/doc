@@ -111,7 +111,7 @@ class Docx
 
 			$rIds = array();
 			$param = array('folder' => $cacheFolder, 'imgmaxwidth' => $imgmaxwidth, 'previewlen' => $previewlen, 'rIds' => $rIds);
-			if ($xmls[0]) {
+			if ($xmls) {
 				$xmlar = docx_dom_to_array($xmls[0]);
 				$xmlar2 = docx_dom_to_array($xmls[1]);
 
